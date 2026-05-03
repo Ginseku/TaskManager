@@ -28,7 +28,7 @@ public class InitAdminWhenFirstStart implements CommandLineRunner {
     public void run(String... args) throws Exception {
        User user = new User();
 
-       if (!userRepo.existByRole(Role.ADMIN)){
+       if (!userRepo.existsByRole(Role.ADMIN)){
            user.setName(adminProperties.getName());
            user.setPassword(encoder.encode(adminProperties.getPassword()));
            user.setEmail(adminProperties.getEmail());
