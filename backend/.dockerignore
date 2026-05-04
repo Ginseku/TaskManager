@@ -1,0 +1,25 @@
+# Build output
+target
+build
+
+# Dependencies (if you ever add frontend here)
+node_modules
+
+# Git
+.git
+.gitignore
+
+# IDEs
+.idea
+.vscode
+*.iml
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local env
+.env

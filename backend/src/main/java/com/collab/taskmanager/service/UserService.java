@@ -24,7 +24,7 @@ public class UserService {
 
         return new GetMeResponse(
                 user.getId(),
-                user.getName(), 
+                user.getName(),
                 user.getEmail(),
                 user.getRole()
         );
