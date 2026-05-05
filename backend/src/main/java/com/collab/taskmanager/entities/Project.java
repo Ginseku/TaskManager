@@ -19,7 +19,7 @@ public class Project {
     private String name;
     private String description;
     @ManyToOne
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id",nullable = true)
     private Team team;
     @ManyToOne
     @JoinColumn(name = "created_by_id")
