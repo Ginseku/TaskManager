@@ -21,4 +21,10 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Team> createdTeams;
+
+    @OneToMany(mappedBy = "member")
+    private List<TeamMember> teamMemberships;
+
 }
