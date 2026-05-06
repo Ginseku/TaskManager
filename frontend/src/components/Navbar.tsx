@@ -29,8 +29,15 @@ export default function Navbar() {
       {/* Left */}
       <div className="navbar-left">
         <div className="navbar-title">
-          <img src={logo} alt="logo" className="navbar-logo" />
-          <span className="navbar-brand">Task Manager</span>
+          <Link
+            to={routes.dashboard()}
+            className="logo-link"
+            style={{ textDecoration: 'none' }}
+          >
+            <img src={logo} alt="logo" className="navbar-logo" />
+            <span className="navbar-brand">Task Manager</span>
+          </Link>
+          
 
           {user && <span className="navbar-user">{user.name}</span>}
         </div>
