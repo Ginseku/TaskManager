@@ -1,20 +1,31 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import { useState } from "react";
+import "./Layout.css";
 
 export default function AppLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      
+    <div className="app-layout">
       <Navbar />
 
-      <div style={{ display: "flex", flex: 1 }}>
-        <Sidebar />
+      {/* Sidebar (floating) */}
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-        <main style={{ padding: 16, flex: 1 }}>
-          <Outlet />
-        </main>
-      </div>
+      {/* Main content */}
+      <main className={`main ${sidebarOpen ? "with-sidebar" : ""}`}>
+        <Outlet />
+      </main>
     </div>
   );
 }

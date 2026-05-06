@@ -1,0 +1,30 @@
+.app-layout {
+  min-height: 100vh;
+}
+
+/* Main content shift when sidebar is open */
+.main {
+  padding: 16px;
+  margin-top: var(--navbar-height);
+  transition: margin-left 0.25s ease;
+}
+
+.main.with-sidebar {
+  margin-left: 240px;
+}
+
+/* Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0;
+  width: 100%;
+  height: calc(100% - var(--navbar-height));
+  background: rgba(0,0,0,0.4);
+  z-index: 900;
+}
+
+.main-offset {
+  margin-top: var(--navbar-height);
+  padding: 16px;
+}
