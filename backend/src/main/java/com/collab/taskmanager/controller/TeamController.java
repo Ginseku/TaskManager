@@ -5,6 +5,7 @@ import com.collab.taskmanager.dto.request.CreateTeamRequest;
 import com.collab.taskmanager.dto.response.TeamResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TeamService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class TeamController {
 
     @PostMapping("/createTeam")
     public ResponseEntity<TeamResponse> createTeam(@AuthenticationPrincipal UserPrincipal userDetail, @RequestBody CreateTeamRequest request){
-        return teamService.createTeam(userDetail.getUser(), request);
+        return ResponseEntity.ok(teamService.createTeam(userDetail.getUser(), request));
     }
 
     @GetMapping
