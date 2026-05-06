@@ -4,7 +4,7 @@ import { routes } from "../router/routes";
 import "./Navbar.css";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo.png";
 import { useState } from "react";
 
 export default function Navbar() {
