@@ -4,6 +4,8 @@ import { routes } from "../router/routes";
 import "./Navbar.css";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import logo from "../assets/logo.png";
+import { useState } from "react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -12,6 +14,7 @@ export default function Navbar() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
   const isAboutPage = location.pathname === routes.about();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -23,11 +26,18 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <div className="navbar-title">
-        Task Manager {user ? `- ${user.name}` : "- Guest"}
+      {/* Left */}
+      <div className="navbar-left">
+        <div className="navbar-title">
+          <img src={logo} alt="logo" className="navbar-logo" />
+          <span className="navbar-brand">Task Manager</span>
+
+          {user && <span className="navbar-user">{user.name}</span>}
+        </div>
       </div>
 
-      <div>
+      {/* Center */}
+      <div className="navbar-center">
         <button
           onClick={toggleTheme}
           style={{
@@ -43,56 +53,68 @@ export default function Navbar() {
           {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
         </button>
       </div>
-      <div>
-        {isAboutPage ? (
-          <Link
-            to={routes.dashboard()}
-            className="navbar-button"
-            style={{ marginRight: 12 }}
-          >
-            Home
-          </Link>
-        ) : (
-          <Link
-            to={routes.about()}
-            className="navbar-button"
-            style={{ marginRight: 12 }}
-          >
-            About
-          </Link>
-        )}
-        {location.pathname === "/admin" && (
-          <Link
-            to={routes.dashboard()}
-            className="navbar-button"
-            style={{ marginRight: 12 }}
-          >
-            Back to App
-          </Link>
-        )}
-        {user?.role === "ADMIN" && !isAdminPage && (
-          <Link
-            to={routes.admin()}
-            className="navbar-button"
-            style={{ marginRight: 12 }}
-          >
-            Admin Panel
-          </Link>
-        )}
-        {user ? (
-          <button onClick={handleLogout} className="navbar-button">
-            Logout
-          </button>
-        ) : (
-          <>
-            <Link to={routes.login()} className="navbar-link">
-              Login
+
+      {/* Right */}
+      <div className="navbar-right">
+        <button
+          className="navbar-hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <span className="material-symbols-outlined">
+            {menuOpen ? "close" : "menu"}
+          </span>
+        </button>
+        <div className={`navbar-menu ${menuOpen ? "open" : ""}`}>
+          {isAboutPage ? (
+            <Link
+              to={routes.dashboard()}
+              className="navbar-button"
+              style={{ marginRight: 12 }}
+            >
+              Home
             </Link>
-            <Link to={routes.register()} className="navbar-link">
-              Register
+          ) : (
+            <Link
+              to={routes.about()}
+              className="navbar-button"
+              style={{ marginRight: 12 }}
+            >
+              About
             </Link>
-          </>
-        )}
+          )}
+          {location.pathname === "/admin" && (
+            <Link
+              to={routes.dashboard()}
+              className="navbar-button"
+              style={{ marginRight: 12 }}
+            >
+              Back to App
+            </Link>
+          )}
+          {user?.role === "ADMIN" && !isAdminPage && (
+            <Link
+              to={routes.admin()}
+              className="navbar-button"
+              style={{ marginRight: 12 }}
+            >
+              Admin Panel
+            </Link>
+          )}
+          {user ? (
+            <button onClick={handleLogout} className="navbar-button">
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link to={routes.login()} className="navbar-link">
+                Login
+              </Link>
+              <Link to={routes.register()} className="navbar-link">
+                Register
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
