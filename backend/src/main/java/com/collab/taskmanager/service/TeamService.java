@@ -30,7 +30,7 @@ public class TeamService {
         this.teamMembersRepo = teamMembersRepo;
     }
 
-    public ResponseEntity<TeamResponse> createTeam(User user, CreateTeamRequest request){
+    public TeamResponse createTeam(User user, CreateTeamRequest request){
         Team team = new Team();
         team.setName(request.name());
         team.setDescription(request.description());
@@ -42,7 +42,7 @@ public class TeamService {
         member.setTeam(team);
         member.setTeamRole(TeamRole.OWNER);
         teamMembersRepo.save(member);
-        return new ResponseEntity<>(new TeamResponse(savedTeam.getId(),savedTeam.getName()),HttpStatus.OK);
+        return new TeamResponse(savedTeam.getId(),savedTeam.getName());
     }
 
     public void addMember(UserPrincipal currentUser, Long userId, Long teamId) {
