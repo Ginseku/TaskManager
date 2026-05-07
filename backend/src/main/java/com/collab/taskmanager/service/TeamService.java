@@ -1,6 +1,7 @@
 package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.request.CreateTeamRequest;
+import com.collab.taskmanager.dto.response.TeamMemberResponse;
 import com.collab.taskmanager.dto.response.TeamResponse;
 import com.collab.taskmanager.entities.Team;
 import com.collab.taskmanager.entities.TeamMember;
@@ -92,6 +93,16 @@ public class TeamService {
                 .map(tm -> new TeamResponse(
                         tm.getTeam().getId(),
                         tm.getTeam().getName()
+                ))
+                .toList();
+    }
+
+    public List<TeamMemberResponse> getTeamMembers(Long teamId){
+        List<TeamMember> teamMember = teamMembersRepo.findByTeamId(teamId);
+        return teamMember.stream()
+                .map(tm -> new TeamMemberResponse(
+                        tm.getMember().getId(),
+                        tm.getMember().getName()
                 ))
                 .toList();
     }

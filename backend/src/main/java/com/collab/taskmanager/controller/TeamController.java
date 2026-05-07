@@ -2,6 +2,7 @@ package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.AddMemberRequest;
 import com.collab.taskmanager.dto.request.CreateTeamRequest;
+import com.collab.taskmanager.dto.response.TeamMemberResponse;
 import com.collab.taskmanager.dto.response.TeamResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TeamService;
@@ -36,6 +37,11 @@ public class TeamController {
     public TeamResponse getTeam(@PathVariable Long teamId) {
         return teamService.getTeam(teamId);
     }
+    
+    @GetMapping("/{teamId}/getMembers")
+    public ResponseEntity<List<TeamMemberResponse>> getTeamMembers(@PathVariable Long teamId){
+        return ResponseEntity.ok(teamService.getTeamMembers(teamId));
+    }
 
     @PostMapping("/{teamId}/members")
     public ResponseEntity<String> addMember(
@@ -45,5 +51,5 @@ public class TeamController {
         teamService.addMember(userDetails,request.userId(),teamId);
         return ResponseEntity.ok("User added");
     }
-
+    
 }
