@@ -18,6 +18,7 @@ import AdminRoute from "./AdminRoute";
 import AdminLayout from "../layouts/AdminLayout";
 import AboutLayout from "../layouts/AboutLayout";
 import About from "../pages/About";
+import CreateTeam from "../pages/CreateTeam";
 
 export default function AppRouter() {
   return (
@@ -53,6 +54,7 @@ export default function AppRouter() {
 
                 <Route path="/teams" element={<Teams />} />
                 <Route path="/teams/:teamId" element={<TeamDetails />} />
+                <Route path={routes.createTeam()} element={<CreateTeam />} />
 
                 <Route
                   path="/teams/:teamId/projects/:projectId"
