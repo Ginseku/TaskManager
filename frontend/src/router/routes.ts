@@ -1,12 +1,14 @@
 export const routes = {
   home: () => "/",
   dashboard: () => "/dashboard",
-  register: () => "register",
+  register: () => "/register",
   login: () => "/login",
   about: () => "/about",
 
   teams: () => "/teams",
+  createTeam: () => "/teams/create",
   team: (teamId: number | string) => `/teams/${teamId}`,
+
   project: (teamId: number | string, projectId: number | string) =>
     `/teams/${teamId}/projects/${projectId}`,
   task: (
