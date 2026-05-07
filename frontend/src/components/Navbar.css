@@ -119,6 +119,7 @@
   height: 28px;
   width: auto;
   object-fit: contain;
+  margin-right: 15px;
 }
 
 /* Right hand side toggle */
@@ -166,4 +167,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
 }

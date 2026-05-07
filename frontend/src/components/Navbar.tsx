@@ -4,7 +4,7 @@ import { routes } from "../router/routes";
 import "./Navbar.css";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo.png";
 import { useState } from "react";
 
 export default function Navbar() {
@@ -29,8 +29,15 @@ export default function Navbar() {
       {/* Left */}
       <div className="navbar-left">
         <div className="navbar-title">
-          <img src={logo} alt="logo" className="navbar-logo" />
-          <span className="navbar-brand">Task Manager</span>
+          <Link
+            to={routes.dashboard()}
+            className="logo-link"
+            style={{ textDecoration: 'none' }}
+          >
+            <img src={logo} alt="logo" className="navbar-logo" />
+            <span className="navbar-brand">Task Manager</span>
+          </Link>
+          
 
           {user && <span className="navbar-user">{user.name}</span>}
         </div>
