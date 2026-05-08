@@ -8,12 +8,12 @@ import com.collab.taskmanager.entities.TeamMember;
 import com.collab.taskmanager.entities.User;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.enums.TeamRole;
+import com.collab.taskmanager.exceptions.TeamMemberNotFound;
+import com.collab.taskmanager.exceptions.TeamNotFound;
 import com.collab.taskmanager.exceptions.UserNotFoundException;
 import com.collab.taskmanager.repos.TeamMembersRepo;
 import com.collab.taskmanager.repos.TeamRepo;
 import com.collab.taskmanager.repos.UserRepo;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,11 +49,11 @@ public class TeamService {
     public void addMember(UserPrincipal currentUser, Long userId, Long teamId) {
         Long currentUserId = currentUser.getUser().getId();
         Team team = teamRepo.findById(teamId)
-                .orElseThrow( () -> new RuntimeException("Team not found"));
+                .orElseThrow( () -> new TeamNotFound(teamId));
         User userToAdd = userRepo.findById(userId)
                 .orElseThrow( () -> new UserNotFoundException(userId));
         TeamMember currentMember = teamMembersRepo.findByTeamIdAndMemberId(teamId, currentUserId)
-                .orElseThrow(() -> new RuntimeException("Not a team member"));
+                .orElseThrow(() -> new TeamMemberNotFound());
 
         //Check if current user is Owner
         if (currentMember.getTeamRole() != TeamRole.OWNER) {
@@ -79,7 +79,7 @@ public class TeamService {
 
     public TeamResponse getTeam(Long teamId) {
         Team team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
+                .orElseThrow(() -> new TeamNotFound(teamId));
         return new TeamResponse(team.getId(), team.getName());
     }
 
