@@ -48,4 +48,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(e.getMessage());
     }
+    @ExceptionHandler(TeamNotFound.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(TeamNotFound e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(TeamMemberNotFound.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(TeamMemberNotFound e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
 }
