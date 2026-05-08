@@ -115,4 +115,19 @@ public class TeamController {
 
         return ResponseEntity.ok("User added");
     }
+
+    @Operation(
+            summary = "Remove user from team",
+            description = "Removes specified user from specified team"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User removed successfully"),
+            @ApiResponse(responseCode = "404", description = "User or team member not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @DeleteMapping("/{teamId}/members/{userId}")
+    public ResponseEntity<Void> removeUserFromTeamById(@PathVariable Long userId, @PathVariable Long teamId){
+        teamService.removeUserFromTeamById(teamId,userId);
+        return ResponseEntity.noContent().build();
+    }
 }
