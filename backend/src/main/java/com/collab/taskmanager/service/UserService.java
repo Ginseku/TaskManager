@@ -1,6 +1,7 @@
 package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.response.GetMeResponse;
+import com.collab.taskmanager.dto.response.SearchResponse;
 import com.collab.taskmanager.entities.User;
 import com.collab.taskmanager.exceptions.UserNotFoundException;
 import com.collab.taskmanager.repos.UserRepo;
@@ -30,4 +31,9 @@ public class UserService {
         );
     }
 
+    public SearchResponse searchUser(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+        return new SearchResponse(user.getId(),user.getName());
+    }
 }
