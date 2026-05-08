@@ -12,8 +12,6 @@ import com.collab.taskmanager.exceptions.UserNotFoundException;
 import com.collab.taskmanager.repos.TeamMembersRepo;
 import com.collab.taskmanager.repos.TeamRepo;
 import com.collab.taskmanager.repos.UserRepo;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
