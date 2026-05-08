@@ -5,7 +5,9 @@ import com.collab.taskmanager.dto.response.GetMeResponse;
 import com.collab.taskmanager.dto.response.SearchResponse;
 import com.collab.taskmanager.dto.response.UserDTO;
 import com.collab.taskmanager.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +42,14 @@ public class UserController {
         );
     }
 
+    @Operation(
+            summary = "Search user by email",
+            description = "Returns basic user information for the specified email address"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/search")
     public SearchResponse searchUsers(@RequestParam String email){
         return userService.searchUser(email);
