@@ -15,6 +15,7 @@ import com.collab.taskmanager.repos.TeamMembersRepo;
 import com.collab.taskmanager.repos.TeamRepo;
 import com.collab.taskmanager.repos.UserRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class TeamService {
         this.teamMembersRepo = teamMembersRepo;
     }
 
-    public TeamResponse createTeam(User user, CreateTeamRequest request){
+    public TeamResponse createTeam(User user, CreateTeamRequest request) {
         Team team = new Team();
         team.setName(request.name());
         team.setDescription(request.description());
@@ -43,15 +44,15 @@ public class TeamService {
         member.setTeam(team);
         member.setTeamRole(TeamRole.OWNER);
         teamMembersRepo.save(member);
-        return new TeamResponse(savedTeam.getId(),savedTeam.getName());
+        return new TeamResponse(savedTeam.getId(), savedTeam.getName());
     }
 
     public void addMember(UserPrincipal currentUser, Long userId, Long teamId) {
         Long currentUserId = currentUser.getUser().getId();
         Team team = teamRepo.findById(teamId)
-                .orElseThrow( () -> new TeamNotFound(teamId));
+                .orElseThrow(() -> new TeamNotFound(teamId));
         User userToAdd = userRepo.findById(userId)
-                .orElseThrow( () -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         TeamMember currentMember = teamMembersRepo.findByTeamIdAndMemberId(teamId, currentUserId)
                 .orElseThrow(() -> new TeamMemberNotFound());
 
@@ -97,7 +98,7 @@ public class TeamService {
                 .toList();
     }
 
-    public List<TeamMemberResponse> getTeamMembers(Long teamId){
+    public List<TeamMemberResponse> getTeamMembers(Long teamId) {
         List<TeamMember> teamMember = teamMembersRepo.findByTeamId(teamId);
         return teamMember.stream()
                 .map(tm -> new TeamMemberResponse(
@@ -105,5 +106,13 @@ public class TeamService {
                         tm.getMember().getName()
                 ))
                 .toList();
+    }
+
+    @Transactional
+    public void removeUserFromTeamById(Long teamId, Long userId) {
+        if (!teamMembersRepo.existsByTeamIdAndMemberId(teamId, userId)) {
+            throw new TeamMemberNotFound();
+        }
+        teamMembersRepo.deleteByTeamIdAndMemberId(teamId,userId);
     }
 }
