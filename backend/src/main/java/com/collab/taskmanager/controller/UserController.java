@@ -2,6 +2,7 @@ package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.response.Response;
 import com.collab.taskmanager.dto.response.GetMeResponse;
+import com.collab.taskmanager.dto.response.SearchResponse;
 import com.collab.taskmanager.dto.response.UserDTO;
 import com.collab.taskmanager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,25 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Get all users",
+            description = "Returns a list of all users"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Users fetched successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user is not authenticated"
+            )
+    })
     @GetMapping("/getAll")
     public ResponseEntity<Response<List<UserDTO>>> getAllUsers() {
         return new ResponseEntity<>(
