@@ -48,8 +48,5 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(email));
         return new SearchResponse(user.getId(),user.getName());
     }
-    public List<UserDTO> getAllUsers() {
-        return userRepo.findAll().stream().map(mapper::toUserDTO).collect(Collectors.toList());
-    }
 
 }
