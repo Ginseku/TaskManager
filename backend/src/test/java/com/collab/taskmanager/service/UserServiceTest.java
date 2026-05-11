@@ -1,5 +1,6 @@
 package com.collab.taskmanager.service;
 
+import com.collab.taskmanager.dto.Mapper;
 import com.collab.taskmanager.dto.response.GetMeResponse;
 import com.collab.taskmanager.dto.response.SearchResponse;
 import com.collab.taskmanager.entities.User;
@@ -25,13 +26,16 @@ class UserServiceTest {
     private UserRepo userRepo;
 
     @Mock
+    private Mapper mapper;
+
+    @Mock
     private Authentication authentication;
 
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepo);
+        userService = new UserService(userRepo,mapper);
     }
 
     @Test
