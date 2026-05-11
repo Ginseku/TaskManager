@@ -94,7 +94,7 @@ class UserServiceTest {
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
 
         // when
-        SearchResponse response = userService.searchUser(email);
+        SearchResponse response = userService.searchUserByUsername(email);
 
         // then
         assertNotNull(response);
@@ -113,7 +113,7 @@ class UserServiceTest {
 
         // when + then
         assertThrows(UserNotFoundException.class,
-                () -> userService.searchUser(email));
+                () -> userService.searchUserByUsername(email));
 
         verify(userRepo).findByEmail(email);
     }
