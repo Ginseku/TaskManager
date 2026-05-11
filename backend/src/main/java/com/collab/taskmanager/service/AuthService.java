@@ -5,7 +5,7 @@ import com.collab.taskmanager.dto.request.LoginUserRequest;
 import com.collab.taskmanager.dto.request.RegisterUserRequest;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.exceptions.UserAlreadyExist;
-import com.collab.taskmanager.exceptions.UserNameAlreadyExist;
+import com.collab.taskmanager.exceptions.UserNameAlreadyExistsException;
 import com.collab.taskmanager.repos.UserRepo;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,7 +34,7 @@ public class AuthService {
             throw new UserAlreadyExist(req.email());
         }
         if (userRepo.existsByName(req.name())) {
-            throw new UserNameAlreadyExist();
+            throw new UserNameAlreadyExistsException();
         }
         UserDetails userDetails = new UserPrincipal(userRepo.save(mapper.toUserEntity(req)));
         return jwtService.createToken(userDetails);
