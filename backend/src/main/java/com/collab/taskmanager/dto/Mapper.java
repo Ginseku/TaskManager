@@ -1,6 +1,7 @@
 package com.collab.taskmanager.dto;
 
 import com.collab.taskmanager.dto.request.RegisterUserRequest;
+import com.collab.taskmanager.dto.response.UserDTO;
 import com.collab.taskmanager.entities.User;
 import com.collab.taskmanager.enums.Role;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,10 @@ public class Mapper {
         user.setPassword(passwordEncoder.encode(req.password()));
         user.setRole(Role.USER);
         return user;
+    }
+
+    public UserDTO toUserDTO(User user) {
+        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getRole());
     }
 
 }
