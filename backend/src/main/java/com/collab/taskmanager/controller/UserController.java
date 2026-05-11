@@ -1,9 +1,9 @@
 package com.collab.taskmanager.controller;
 
+import com.collab.taskmanager.dto.response.GetUsernameAndIdResponse;
 import com.collab.taskmanager.dto.response.Response;
 import com.collab.taskmanager.dto.response.GetMeResponse;
 import com.collab.taskmanager.dto.response.SearchResponse;
-import com.collab.taskmanager.dto.response.UserDTO;
 import com.collab.taskmanager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PreAuthorize("isAuthenticated()")
+
     @ApiResponse(responseCode = "200", description = "Successes")
     @ApiResponse(responseCode = "401", description = "Unauthorized - user is not authenticated")
     @ApiResponse(responseCode = "403", description = "Forbidden")
@@ -40,7 +39,7 @@ public class UserController {
         );
     }
 
-    @PreAuthorize("isAuthenticated()")
+
     @Operation(
             summary = "Get all users",
             description = "Returns a list of all users"
@@ -60,23 +59,35 @@ public class UserController {
             )
     })
     @GetMapping("/getAll")
-    public ResponseEntity<Response<List<UserDTO>>> getAllUsers() {
+    public ResponseEntity<Response<List<GetUsernameAndIdResponse>>> getAllUsers() {
         return new ResponseEntity<>(
                 Response.success(userService.getAllUsers()), HttpStatus.OK
         );
     }
 
-    @Operation(
-            summary = "Search user by email",
-            description = "Returns basic user information for the specified email address"
+//    @Operation(
+//            summary = "Search user by email",
+//            description = "Returns basic user information for the specified email address"
+//    )
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "User found"),
+//            @ApiResponse(responseCode = "404", description = "User not found")
+//    })
+//    @GetMapping("/search")
+//    public SearchResponse searchUserByEmail(@RequestParam String email){
+//        return userService.searchUser(email);
+//    }
+@Operation(
+            summary = "Search user by username",
+            description = "Returns basic user information for the specified username"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/search")
-    public SearchResponse searchUsers(@RequestParam String email){
-        return userService.searchUser(email);
+    public SearchResponse searchUserByUsername(@RequestParam String username){
+        return userService.searchUserByUsername(username);
     }
 
 }

@@ -60,4 +60,10 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(e.getMessage());
     }
+    @ExceptionHandler(UserNameAlreadyExistsException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(UserNameAlreadyExistsException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
 }
