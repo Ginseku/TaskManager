@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { getTeams } from "../api/teams";
 import { routes } from "../router/routes";
 import { useEffect, useState } from "react";
-import type { Team } from "../types/team";
+//import type { Team } from "../types/team";
+import type { UserTeam } from "../types/userTeam";
 
 export default function Teams() {
-  const [teams, setTeams] = useState<Team[]>([]);
+  //const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<UserTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -70,11 +72,13 @@ export default function Teams() {
               }}
             >
               <div style={{ fontWeight: 600 }}>{team.name}</div>
+              {/* 
               {team.description && (
                 <div style={{ fontSize: "13px", opacity: 0.7 }}>
                   {team.description}
                 </div>
               )}
+              */}
             </Link>
           ))}
         </div>
