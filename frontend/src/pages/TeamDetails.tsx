@@ -1,12 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 import { routes } from "../router/routes";
 import { useEffect, useState } from "react";
-import { getTeamById } from "../api/teams";
 import { getProjectsByTeam } from "../api/projects";
 import type { Team } from "../types/team";
 import type { Project } from "../types/project";
-import { addMemberToTeam } from "../api/teams";
-import type { User } from "../types/user";
+import {
+  addMemberToTeam,
+  getTeamMembers,
+  removeMemberFromTeam,
+  getTeamById,
+} from "../api/teams";
+import type { PublicUser } from "../types/publicUser";
+import SelectMenu from "../components/Select";
+import type { Option } from "../types/selectOption";
 
 export default function TeamDetails() {
   const { teamId } = useParams<{ teamId: string }>();
@@ -14,11 +20,10 @@ export default function TeamDetails() {
   const [team, setTeam] = useState<Team | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [members, setMembers] = useState<PublicUser[]>([]);
+  const [resetSelect, setResetSelect] = useState(0);
 
-  //Placeholder until we get BE
-  const [members, setMembers] = useState<User[]>([]);
-
-  const handleAddMember = async (user: User) => {
+  const handleAddMember = async (user: PublicUser) => {
     if (!teamId) return;
     try {
       await addMemberToTeam(Number(teamId), user.id);
@@ -34,22 +39,31 @@ export default function TeamDetails() {
     }
   };
 
+  const handleRemoveMember = async (userId: number) => {
+    if (!teamId) return;
+
+    try {
+      await removeMemberFromTeam(Number(teamId), userId);
+
+      setMembers((prev) => prev.filter((m) => m.id !== userId));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to remove member");
+    }
+  };
+
   useEffect(() => {
     if (!teamId) return;
 
     Promise.all([
       getTeamById(Number(teamId)),
       getProjectsByTeam(Number(teamId)),
-      // TODO (backend not ready):
-      // - GET /teams/{id}/members
-      // - integrate SearchBar results
+      getTeamMembers(Number(teamId)),
     ])
-      .then(([teamData, projectData]) => {
+      .then(([teamData, projectData, membersData]) => {
         setTeam(teamData);
         setProjects(projectData);
-        // TODO (backend not ready):
-        // - GET /teams/{id}/members
-        // - integrate SearchBar results
+        setMembers(membersData);
       })
       .finally(() => setLoading(false));
   }, [teamId]);
@@ -58,68 +72,93 @@ export default function TeamDetails() {
 
   if (!team) return <div>Team not found</div>;
 
+  const existingMemberIds = members.map((m) => m.id);
+
   return (
-  <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-    
-    {/* TEAM HEADER */}
-    <section>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <h1>{team.name}</h1>
-      <p>{team.description}</p>
-    </section>
+      <section>
+        {members.length === 0 ? (
+          <p>No members yet</p>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
+              marginBottom: "12px",
+            }}
+          >
+            {members.map((m) => (
+              <div
+                key={m.id}
+                style={{ display: "flex", gap: "10px", alignItems: "center" }}
+              >
+                <span>{m.name}</span>
 
-    {/* MEMBERS */}
-    <section>
-      <h2>Members</h2>
+                <button
+                  onClick={() => handleRemoveMember(m.id)}
+                  style={{
+                    marginLeft: "auto",
+                    background: "transparent",
+                    border: "1px solid red",
+                    color: "red",
+                    borderRadius: "6px",
+                    padding: "2px 8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* TODO: SearchBar and ADD MEMBERS */}
-      <div
-  style={{
-    padding: "12px",
-    border: "1px dashed #aaa",
-    borderRadius: "8px",
-    marginBottom: "12px",
-    background: "#fafafa",
-  }}
->
-  <strong>Add users to team</strong>
+        {/* ADD MEMBERS BOX */}
+        <div
+          style={{
+            padding: "12px",
+          }}
+        >
+          <strong>Add users to team</strong>
 
-  <p style={{ margin: "6px 0 0", fontSize: "13px", opacity: 0.7 }}>
-    Search and invite users to this team (SearchBar coming soon)
-  </p>
-</div>
-
-      {members.length === 0 ? (
-        <p>No members yet</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          {members.map((m) => (
-            <div key={m.id}>
-              {m.name} <span style={{ opacity: 0.6 }}>({m.email})</span>
-            </div>
-          ))}
+          <div style={{ marginTop: "12px" }}>
+            <SelectMenu
+              existingMembers={existingMemberIds}
+              resetKey={resetSelect}
+              onAddUsers={(users: Option[]) => {
+                users.forEach((user) => {
+                  handleAddMember({
+                    id: user.value,
+                    name: user.label,
+                  });
+                });
+                setResetSelect((prev) => prev + 1);
+              }}
+            />
+          </div>
         </div>
-      )}
-    </section>
+      </section>
 
-    {/* PROJECTS */}
-    <section>
-      <h2>Projects</h2>
+      {/* PROJECTS */}
+      <section>
+        <h2>Projects</h2>
 
-      {projects.length === 0 ? (
-        <p>No projects yet</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          {projects.map((project) => (
-            <div key={project.id}>
-              <Link to={routes.project(team.id, project.id)}>
-                {project.name}
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-
-  </div>
-);
+        {projects.length === 0 ? (
+          <p>No projects yet</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {projects.map((project) => (
+              <div key={project.id}>
+                <Link to={routes.project(team.id, project.id)}>
+                  {project.name}
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }

@@ -1,6 +1,6 @@
 export type Team = {
     id: number;
     name: string;
-    description?: string;
-    createdBy: number;
+    //description?: string;
+    //createdBy: number;
 }

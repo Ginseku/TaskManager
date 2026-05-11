@@ -4,6 +4,7 @@ import { mockTeams } from "../mock/data";
 import type { CreateTeamRequest } from "../types/createTeamRequest";
 import type { UserTeam } from "../types/userTeam";
 import type { TeamCreatedResponse } from "../types/teamCreatedResponse";
+import type { PublicUser } from "../types/publicUser";
 
 const USE_MOCK = false;
 
@@ -21,9 +22,7 @@ export const getTeams = async (): Promise<Team[]> => {
   return res.data;
 };
 
-export const getTeamById = async (
-  teamId: number
-): Promise<Team | null> => {
+export const getTeamById = async (teamId: number): Promise<Team | null> => {
   if (USE_MOCK) {
     return mockTeams.find((t) => t.id === teamId) || null;
   }
@@ -34,25 +33,38 @@ export const getTeamById = async (
 
 export const addMemberToTeam = async (
   teamId: number,
-  userId: number
+  userId: number,
 ): Promise<string> => {
-  const res = await api.post<string>(
-    `/teams/${teamId}/members`,
-    {
-      userId,
-    }
-  );
+  const res = await api.post<string>(`/teams/${teamId}/members`, {
+    userId,
+  });
 
   return res.data;
 };
 
 export const createTeam = async (
-  data: CreateTeamRequest
+  data: CreateTeamRequest,
 ): Promise<TeamCreatedResponse> => {
-  const res = await api.post<TeamCreatedResponse>(
-    "/teams/createTeam",
-    data
-  );
+  const res = await api.post<TeamCreatedResponse>("/teams/createTeam", data);
 
   return res.data;
+};
+
+export const getTeamMembers = async (teamId: number): Promise<PublicUser[]> => {
+  const res = await api.get<PublicUser[]>(`/teams/${teamId}/getMembers`);
+
+  return res.data;
+};
+
+export const getAllUsers = async (): Promise<PublicUser[]> => {
+  const res = await api.get<PublicUser[]>("/user/getAll");
+
+  return res.data;
+};
+
+export const removeMemberFromTeam = async (
+  teamId: number,
+  userId: number,
+): Promise<void> => {
+  await api.delete(`/teams/${teamId}/members/${userId}`);
 };
