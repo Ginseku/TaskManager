@@ -2,8 +2,15 @@ import { api } from "./client";
 import type { Team } from "../types/team";
 import { mockTeams } from "../mock/data";
 import type { CreateTeamRequest } from "../types/createTeamRequest";
+import type { UserTeam } from "../types/userTeam";
+import type { TeamCreatedResponse } from "../types/teamCreatedResponse";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
+
+export const getUserTeams = async (): Promise<UserTeam[]> => {
+  const res = await api.get<UserTeam[]>("/teams");
+  return res.data;
+};
 
 export const getTeams = async (): Promise<Team[]> => {
   if (USE_MOCK) {
@@ -41,8 +48,8 @@ export const addMemberToTeam = async (
 
 export const createTeam = async (
   data: CreateTeamRequest
-): Promise<Team> => {
-  const res = await api.post<Team>(
+): Promise<TeamCreatedResponse> => {
+  const res = await api.post<TeamCreatedResponse>(
     "/teams/createTeam",
     data
   );
