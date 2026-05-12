@@ -1,6 +1,7 @@
 package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.request.CreateTeamRequest;
+import com.collab.taskmanager.dto.response.TeamDetailsResponse;
 import com.collab.taskmanager.dto.response.TeamMemberResponse;
 import com.collab.taskmanager.dto.response.TeamResponse;
 import com.collab.taskmanager.entities.Team;
@@ -56,8 +57,11 @@ public class TeamService {
         TeamMember currentMember = teamMembersRepo.findByTeamIdAndMemberId(teamId, currentUserId)
                 .orElseThrow(() -> new TeamMemberNotFoundException());
 
-        //Check if current user is Owner
-        if (currentMember.getTeamRole() != TeamRole.OWNER) {
+        //Check if current user is Owner or Admin
+        /*if (currentMember.getTeamRole() != TeamRole.OWNER) {
+            throw new RuntimeException("No permission");
+        }*/
+        if (!canManageTeam(currentUser, team)) {
             throw new RuntimeException("No permission");
         }
 
@@ -78,10 +82,14 @@ public class TeamService {
 
     }
 
-    public TeamResponse getTeam(Long teamId) {
+    public TeamDetailsResponse getTeam(UserPrincipal currentUser, Long teamId) {
         Team team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new TeamNotFoundException(teamId));
-        return new TeamResponse(team.getId(), team.getName());
+                .orElseThrow(() -> new TeamNotFound(teamId));
+        return new TeamDetailsResponse(
+                team.getId(),
+                team.getName(),
+                canManageTeam(currentUser, team)
+        );
     }
 
     public List<TeamResponse> getUserTeams(UserPrincipal user) {
@@ -109,10 +117,29 @@ public class TeamService {
     }
 
     @Transactional
-    public void removeUserFromTeamById(Long teamId, Long userId) {
+    public void removeUserFromTeamById(UserPrincipal currentUser, Long teamId, Long userId) {
+        /*
+        if (!teamMembersRepo.existsByTeamIdAndMemberId(teamId, userId)) {
+            throw new TeamMemberNotFound();
+        }
+        teamMembersRepo.deleteByTeamIdAndMemberId(teamId,userId);*/
+        Team team = teamRepo.findById(teamId)
+                .orElseThrow(() -> new TeamNotFound(teamId));
+
+        if (!canManageTeam(currentUser, team)) {
+            throw new RuntimeException("No permission");
+        }
         if (!teamMembersRepo.existsByTeamIdAndMemberId(teamId, userId)) {
             throw new TeamMemberNotFoundException();
         }
-        teamMembersRepo.deleteByTeamIdAndMemberId(teamId,userId);
+
+        teamMembersRepo.deleteByTeamIdAndMemberId(teamId, userId);
+    }
+
+    //Helper for checking Team management
+    private boolean canManageTeam(UserPrincipal currentUser, Team team) {
+        return team.getCreatedBy().getId().equals(currentUser.getUser().getId())
+                || currentUser.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 }
