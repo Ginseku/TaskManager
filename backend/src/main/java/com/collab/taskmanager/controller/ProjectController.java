@@ -8,6 +8,7 @@ import com.collab.taskmanager.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/project")
+@Tag(name = "Project", description = "Project endpoints")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -35,7 +37,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "User or team not found"),
             @ApiResponse(responseCode = "409", description = "User is not Team member")
     })
-    @PostMapping("/{teamId}/")
+    @PostMapping("/{teamId}")
     public void createProject(@PathVariable("teamId") Long teamId, @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody NameAndDescriptionRequest req){
         projectService.createProject(teamId,userPrincipal,req);
     }
@@ -51,7 +53,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Project not found"),
             @ApiResponse(responseCode = "409", description = "User is not Team member")
     })
-    @GetMapping("/{projectId}/")
+    @GetMapping("/{projectId}")
     public ResponseEntity<List<GetProjectMembersNameResponse>> getProjectMembers(@PathVariable Long projectId, @AuthenticationPrincipal UserPrincipal currentUser){
         return ResponseEntity.ok(projectService.getProjectMembers(projectId, currentUser));
     }
