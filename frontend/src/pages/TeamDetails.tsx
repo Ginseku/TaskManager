@@ -23,6 +23,8 @@ export default function TeamDetails() {
   const [members, setMembers] = useState<PublicUser[]>([]);
   const [resetSelect, setResetSelect] = useState(0);
 
+  const canManageMembers = team?.canManageMembers ?? false;
+
   const handleAddMember = async (user: PublicUser) => {
     if (!teamId) return;
     try {
@@ -85,60 +87,70 @@ export default function TeamDetails() {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "6px",
-              marginBottom: "12px",
+              padding: "6px 10px",
+              borderRadius: "6px",
+              border: "1px solid #63637c",
             }}
           >
             {members.map((m) => (
               <div
                 key={m.id}
-                style={{ display: "flex", gap: "10px", alignItems: "center" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "6px 10px",
+                  
+                }}
               >
-                <span>{m.name}</span>
+                <span style={{ fontWeight: 500 }}>{m.name}</span>
 
-                <button
-                  onClick={() => handleRemoveMember(m.id)}
-                  style={{
-                    marginLeft: "auto",
-                    background: "transparent",
-                    border: "1px solid red",
-                    color: "red",
-                    borderRadius: "6px",
-                    padding: "2px 8px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Remove
-                </button>
+                {canManageMembers && (
+                  <button
+                    onClick={() => handleRemoveMember(m.id)}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid red",
+                      color: "red",
+                      borderRadius: "6px",
+                      padding: "2px 8px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
 
         {/* ADD MEMBERS BOX */}
-        <div
-          style={{
-            padding: "12px",
-          }}
-        >
-          <strong>Add users to team</strong>
+        {canManageMembers && (
+          <div
+            style={{
+              padding: "12px",
+            }}
+          >
+            <strong>Add users to team</strong>
 
-          <div style={{ marginTop: "12px" }}>
-            <SelectMenu
-              existingMembers={existingMemberIds}
-              resetKey={resetSelect}
-              onAddUsers={(users: Option[]) => {
-                users.forEach((user) => {
-                  handleAddMember({
-                    id: user.value,
-                    name: user.label,
+            <div style={{ marginTop: "12px" }}>
+              <SelectMenu
+                existingMembers={existingMemberIds}
+                resetKey={resetSelect}
+                onAddUsers={(users: Option[]) => {
+                  users.forEach((user) => {
+                    handleAddMember({
+                      id: user.value,
+                      name: user.label,
+                    });
                   });
-                });
-                setResetSelect((prev) => prev + 1);
-              }}
-            />
+                  setResetSelect((prev) => prev + 1);
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* PROJECTS */}
