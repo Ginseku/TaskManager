@@ -1,5 +1,6 @@
 package com.collab.taskmanager.controller;
 
+import com.collab.taskmanager.dto.request.NameAndDescriptionRequest;
 import com.collab.taskmanager.dto.response.GetProjectMembersNameResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.ProjectService;
@@ -34,8 +35,8 @@ public class ProjectController {
             @ApiResponse(responseCode = "409", description = "User is not Team member")
     })
     @PostMapping("/{teamId}/")
-    public void createProject(@PathVariable("teamId") Long teamId, @AuthenticationPrincipal UserPrincipal userPrincipal){
-        projectService.createProject(teamId,userPrincipal);
+    public void createProject(@PathVariable("teamId") Long teamId, @AuthenticationPrincipal UserPrincipal userPrincipal, NameAndDescriptionRequest req){
+        projectService.createProject(teamId,userPrincipal,req);
     }
 
     @Operation(

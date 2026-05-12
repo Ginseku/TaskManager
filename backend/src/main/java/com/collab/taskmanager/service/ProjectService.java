@@ -1,5 +1,6 @@
 package com.collab.taskmanager.service;
 
+import com.collab.taskmanager.dto.request.NameAndDescriptionRequest;
 import com.collab.taskmanager.dto.response.GetProjectMembersNameResponse;
 import com.collab.taskmanager.entities.*;
 import com.collab.taskmanager.enums.TeamRole;
@@ -27,23 +28,17 @@ public class ProjectService {
         this.teamMembersRepo = teamMembersRepo;
     }
 
-    public void createProject(Long teamId, UserPrincipal userPrincipal) {
+    public void createProject(Long teamId, UserPrincipal userPrincipal, NameAndDescriptionRequest req) {
         Team team = teamRepo.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException(teamId));
 
-        User user = userRepo.findById(userPrincipal.getUser().getId())
-                .orElseThrow(() -> new UserNotFoundException(userPrincipal.getUser().getId()));
+        User user = userPrincipal.getUser();
 
-        TeamMember teamMember = teamMembersRepo.findByTeamIdAndMemberId(teamId, user.getId())
-                .orElseThrow(() -> new UserIsNotTeamMemberException());
-
-        if (teamMember.getTeamRole() != TeamRole.OWNER) {
-            throw new UserIsNotOwnerException();
-        }
+        validateOwner(teamId,user.getId());
 
         Project project = new Project();
-        project.setName("Test");
-        project.setDescription("TestDesc");
+        project.setName(req.name());
+        project.setDescription(req.description());
         project.setCreatedBy(user);
         project.setTeam(team);
         projectRepo.save(project);
@@ -71,5 +66,16 @@ public class ProjectService {
                 ))
                 .toList();
 
+    }
+
+    private void validateOwner(Long teamId, Long userId) {
+
+        TeamMember teamMember = teamMembersRepo
+                .findByTeamIdAndMemberId(teamId, userId)
+                .orElseThrow(UserIsNotTeamMemberException::new);
+
+        if (teamMember.getTeamRole() != TeamRole.OWNER) {
+            throw new UserIsNotOwnerException();
+        }
     }
 }
