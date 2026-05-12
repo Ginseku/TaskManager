@@ -2,6 +2,7 @@ package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.AddMemberRequest;
 import com.collab.taskmanager.dto.request.CreateTeamRequest;
+import com.collab.taskmanager.dto.response.TeamDetailsResponse;
 import com.collab.taskmanager.dto.response.TeamMemberResponse;
 import com.collab.taskmanager.dto.response.TeamResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
@@ -69,8 +70,10 @@ public class TeamController {
             @ApiResponse(responseCode = "404", description = "Team not found")
     })
     @GetMapping("/{teamId}")
-    public TeamResponse getTeam(@PathVariable Long teamId) {
-        return teamService.getTeam(teamId);
+    public TeamDetailsResponse getTeam(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long teamId) {
+        return teamService.getTeam(user, teamId);
     }
 
 
@@ -126,8 +129,11 @@ public class TeamController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @DeleteMapping("/{teamId}/members/{userId}")
-    public ResponseEntity<Void> removeUserFromTeamById(@PathVariable Long userId, @PathVariable Long teamId){
-        teamService.removeUserFromTeamById(teamId,userId);
+    public ResponseEntity<Void> removeUserFromTeamById(
+            @AuthenticationPrincipal UserPrincipal currentUser,
+            @PathVariable Long userId,
+            @PathVariable Long teamId){
+        teamService.removeUserFromTeamById(currentUser, teamId,userId);
         return ResponseEntity.noContent().build();
     }
 }
