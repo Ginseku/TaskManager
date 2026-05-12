@@ -30,8 +30,8 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(e.getMessage());
     }
-    @ExceptionHandler(UserAlreadyExist.class)
-    public ResponseEntity<String> handlerAccountNotFound(UserAlreadyExist e) {
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<String> handlerAccountNotFound(UserAlreadyExistException e) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(e.getMessage());
@@ -42,26 +42,44 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(e.getMessage());
     }
-    @ExceptionHandler(UserIsNotAdmin.class)
-    public ResponseEntity<String> handlerUserIsNotAdmin(UserIsNotAdmin e) {
+    @ExceptionHandler(UserIsNotAdminException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(UserIsNotAdminException e) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(e.getMessage());
     }
-    @ExceptionHandler(TeamNotFound.class)
-    public ResponseEntity<String> handlerUserIsNotAdmin(TeamNotFound e) {
+    @ExceptionHandler(TeamNotFoundException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(TeamNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(e.getMessage());
     }
-    @ExceptionHandler(TeamMemberNotFound.class)
-    public ResponseEntity<String> handlerUserIsNotAdmin(TeamMemberNotFound e) {
+    @ExceptionHandler(TeamMemberNotFoundException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(TeamMemberNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(e.getMessage());
     }
     @ExceptionHandler(UserNameAlreadyExistsException.class)
     public ResponseEntity<String> handlerUserIsNotAdmin(UserNameAlreadyExistsException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(ProjectNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(UserIsNotOwnerException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(UserIsNotOwnerException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(UserIsNotTeamMemberException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(UserIsNotTeamMemberException e) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(e.getMessage());
