@@ -1,6 +1,7 @@
 package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.NameAndDescriptionRequest;
+import com.collab.taskmanager.dto.request.UpdateProjectRequest;
 import com.collab.taskmanager.dto.response.GetProjectMembersNameResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.ProjectService;
@@ -35,7 +36,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "409", description = "User is not Team member")
     })
     @PostMapping("/{teamId}/")
-    public void createProject(@PathVariable("teamId") Long teamId, @AuthenticationPrincipal UserPrincipal userPrincipal, NameAndDescriptionRequest req){
+    public void createProject(@PathVariable("teamId") Long teamId, @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody NameAndDescriptionRequest req){
         projectService.createProject(teamId,userPrincipal,req);
     }
 
@@ -53,6 +54,29 @@ public class ProjectController {
     @GetMapping("/{projectId}/")
     public ResponseEntity<List<GetProjectMembersNameResponse>> getProjectMembers(@PathVariable Long projectId, @AuthenticationPrincipal UserPrincipal currentUser){
         return ResponseEntity.ok(projectService.getProjectMembers(projectId, currentUser));
+    }
+
+    @PatchMapping("/{projectId}")
+    public ResponseEntity<Void> updateProject(
+            @PathVariable Long projectId,
+            @RequestBody UpdateProjectRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+
+        projectService.updateProject(projectId, request, userPrincipal);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteProject(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+
+        projectService.deleteProject(projectId, userPrincipal);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
