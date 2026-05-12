@@ -8,8 +8,8 @@ import com.collab.taskmanager.entities.TeamMember;
 import com.collab.taskmanager.entities.User;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.enums.TeamRole;
-import com.collab.taskmanager.exceptions.TeamMemberNotFound;
-import com.collab.taskmanager.exceptions.TeamNotFound;
+import com.collab.taskmanager.exceptions.TeamMemberNotFoundException;
+import com.collab.taskmanager.exceptions.TeamNotFoundException;
 import com.collab.taskmanager.exceptions.UserNotFoundException;
 import com.collab.taskmanager.repos.TeamMembersRepo;
 import com.collab.taskmanager.repos.TeamRepo;
@@ -50,11 +50,11 @@ public class TeamService {
     public void addMember(UserPrincipal currentUser, Long userId, Long teamId) {
         Long currentUserId = currentUser.getUser().getId();
         Team team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new TeamNotFound(teamId));
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
         User userToAdd = userRepo.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
         TeamMember currentMember = teamMembersRepo.findByTeamIdAndMemberId(teamId, currentUserId)
-                .orElseThrow(() -> new TeamMemberNotFound());
+                .orElseThrow(() -> new TeamMemberNotFoundException());
 
         //Check if current user is Owner
         if (currentMember.getTeamRole() != TeamRole.OWNER) {
@@ -80,7 +80,7 @@ public class TeamService {
 
     public TeamResponse getTeam(Long teamId) {
         Team team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new TeamNotFound(teamId));
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
         return new TeamResponse(team.getId(), team.getName());
     }
 
@@ -111,7 +111,7 @@ public class TeamService {
     @Transactional
     public void removeUserFromTeamById(Long teamId, Long userId) {
         if (!teamMembersRepo.existsByTeamIdAndMemberId(teamId, userId)) {
-            throw new TeamMemberNotFound();
+            throw new TeamMemberNotFoundException();
         }
         teamMembersRepo.deleteByTeamIdAndMemberId(teamId,userId);
     }

@@ -4,7 +4,7 @@ import com.collab.taskmanager.dto.Mapper;
 import com.collab.taskmanager.dto.request.LoginUserRequest;
 import com.collab.taskmanager.dto.request.RegisterUserRequest;
 import com.collab.taskmanager.entities.UserPrincipal;
-import com.collab.taskmanager.exceptions.UserAlreadyExist;
+import com.collab.taskmanager.exceptions.UserAlreadyExistException;
 import com.collab.taskmanager.exceptions.UserNameAlreadyExistsException;
 import com.collab.taskmanager.repos.UserRepo;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,7 +31,7 @@ public class AuthService {
 
     public String registerUser(RegisterUserRequest req) {
         if (userRepo.findByEmail(req.email()).isPresent()) {
-            throw new UserAlreadyExist(req.email());
+            throw new UserAlreadyExistException(req.email());
         }
         if (userRepo.existsByName(req.name())) {
             throw new UserNameAlreadyExistsException();
