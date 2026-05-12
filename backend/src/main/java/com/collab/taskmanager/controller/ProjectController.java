@@ -56,6 +56,18 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getProjectMembers(projectId, currentUser));
     }
 
+    @Operation(
+            summary = "Update project",
+            description = "Update project name or description"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Project updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "User is not owner"),
+            @ApiResponse(responseCode = "404", description = "Project not found"),
+            @ApiResponse(responseCode = "409", description = "User is not team member")
+    })
     @PatchMapping("/{projectId}")
     public ResponseEntity<Void> updateProject(
             @PathVariable Long projectId,
@@ -68,6 +80,17 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Delete project",
+            description = "Delete project by id"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Project deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "User is not owner"),
+            @ApiResponse(responseCode = "404", description = "Project not found"),
+            @ApiResponse(responseCode = "409", description = "User is not team member")
+    })
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(
             @PathVariable Long projectId,
