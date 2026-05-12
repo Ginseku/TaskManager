@@ -84,7 +84,7 @@ public class TeamService {
 
     public TeamDetailsResponse getTeam(UserPrincipal currentUser, Long teamId) {
         Team team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new TeamNotFound(teamId));
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
         return new TeamDetailsResponse(
                 team.getId(),
                 team.getName(),
@@ -124,7 +124,7 @@ public class TeamService {
         }
         teamMembersRepo.deleteByTeamIdAndMemberId(teamId,userId);*/
         Team team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new TeamNotFound(teamId));
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
 
         if (!canManageTeam(currentUser, team)) {
             throw new RuntimeException("No permission");
