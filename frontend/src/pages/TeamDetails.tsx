@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { routes } from "../router/routes";
 import { useEffect, useState } from "react";
-import { getProjectsByTeam } from "../api/projects";
+import { getProjectsByTeam, createProject } from "../api/projects";
 import type { Team } from "../types/team";
 import type { Project } from "../types/project";
 import {
@@ -22,6 +22,8 @@ export default function TeamDetails() {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<PublicUser[]>([]);
   const [resetSelect, setResetSelect] = useState(0);
+  const [projectName, setProjectName] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
 
   const canManageMembers = team?.canManageMembers ?? false;
 
@@ -54,6 +56,27 @@ export default function TeamDetails() {
     }
   };
 
+  const handleCreateProject = async () => {
+    if (!teamId) return;
+
+    try {
+      await createProject(Number(teamId), {
+        name: projectName,
+        description: projectDescription,
+      });
+
+      const updatedProjects = await getProjectsByTeam(Number(teamId));
+
+      setProjects(updatedProjects);
+
+      setProjectName("");
+      setProjectDescription("");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create project");
+    }
+  };
+
   useEffect(() => {
     if (!teamId) return;
 
@@ -77,9 +100,20 @@ export default function TeamDetails() {
   const existingMemberIds = members.map((m) => m.id);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      <h1>{team.name}</h1>
-      <section>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
+        padding: "24px",
+      }}
+    >
+      {/* HEADER */}
+      <header className="section-card">
+        <h1>{team.name}</h1>
+      </header>
+      {/* MEMBERS */}
+      <section className="section-card">
         {members.length === 0 ? (
           <p>No members yet</p>
         ) : (
@@ -100,7 +134,6 @@ export default function TeamDetails() {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "6px 10px",
-                  
                 }}
               >
                 <span style={{ fontWeight: 500 }}>{m.name}</span>
@@ -154,7 +187,7 @@ export default function TeamDetails() {
       </section>
 
       {/* PROJECTS */}
-      <section>
+      <section className="section-card">
         <h2>Projects</h2>
 
         {projects.length === 0 ? (
@@ -163,7 +196,19 @@ export default function TeamDetails() {
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {projects.map((project) => (
               <div key={project.id}>
-                <Link to={routes.project(team.id, project.id)}>
+                <Link
+                  to={routes.project(team.id, project.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    textDecoration: "none",
+                    color: "var(--text-h)",
+                    transition: "0.2s",
+                  }}
+                >
                   {project.name}
                 </Link>
               </div>
@@ -171,6 +216,44 @@ export default function TeamDetails() {
           </div>
         )}
       </section>
+
+      {/* CREATE PROJECT */}
+      {canManageMembers && (
+        <section className="section-card">
+          <h3>Create Project</h3>
+
+          <input
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder="Project name"
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: "var(--text-h)",
+            }}
+          />
+
+          <textarea
+            value={projectDescription}
+            onChange={(e) => setProjectDescription(e.target.value)}
+            placeholder="Description"
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: "var(--text-h)",
+              minHeight: 80,
+            }}
+          />
+
+          <button className="btn btn-primary" onClick={handleCreateProject}>
+            Create
+          </button>
+        </section>
+      )}
     </div>
   );
 }

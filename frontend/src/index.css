@@ -114,6 +114,17 @@ p {
   margin: 0;
 }
 
+.section-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 code,
 .counter {
   font-family: var(--mono);

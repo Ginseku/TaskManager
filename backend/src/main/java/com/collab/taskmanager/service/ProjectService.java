@@ -3,6 +3,7 @@ package com.collab.taskmanager.service;
 import com.collab.taskmanager.dto.request.NameAndDescriptionRequest;
 import com.collab.taskmanager.dto.request.UpdateProjectRequest;
 import com.collab.taskmanager.dto.response.GetProjectMembersNameResponse;
+import com.collab.taskmanager.dto.response.ProjectResponse;
 import com.collab.taskmanager.entities.*;
 import com.collab.taskmanager.enums.TeamRole;
 import com.collab.taskmanager.exceptions.*;
@@ -108,5 +109,16 @@ public class ProjectService {
         if (teamMember.getTeamRole() != TeamRole.OWNER) {
             throw new UserIsNotOwnerException();
         }
+    }
+
+    public ProjectResponse getProjectById(Long projectId, UserPrincipal user) {
+        Project project = projectRepo.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException());
+
+        return new ProjectResponse(
+                project.getId(),
+                project.getName(),
+                project.getDescription()
+        );
     }
 }

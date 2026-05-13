@@ -3,6 +3,7 @@ package com.collab.taskmanager.controller;
 import com.collab.taskmanager.dto.request.NameAndDescriptionRequest;
 import com.collab.taskmanager.dto.request.UpdateProjectRequest;
 import com.collab.taskmanager.dto.response.GetProjectMembersNameResponse;
+import com.collab.taskmanager.dto.response.ProjectResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -102,6 +103,23 @@ public class ProjectController {
         projectService.deleteProject(projectId, userPrincipal);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Get project by id",
+            description = "Returns project details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project found"),
+            @ApiResponse(responseCode = "404", description = "Project not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @GetMapping("/{projectId}/details")
+    public ResponseEntity<ProjectResponse> getProjectById(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal UserPrincipal currentUser
+    ) {
+        return ResponseEntity.ok(projectService.getProjectById(projectId, currentUser));
     }
 
 }
