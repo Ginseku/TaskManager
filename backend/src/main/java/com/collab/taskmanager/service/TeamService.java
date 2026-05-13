@@ -1,6 +1,7 @@
 package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.request.CreateTeamRequest;
+import com.collab.taskmanager.dto.response.ProjectResponse;
 import com.collab.taskmanager.dto.response.TeamDetailsResponse;
 import com.collab.taskmanager.dto.response.TeamMemberResponse;
 import com.collab.taskmanager.dto.response.TeamResponse;
@@ -12,6 +13,7 @@ import com.collab.taskmanager.enums.TeamRole;
 import com.collab.taskmanager.exceptions.TeamMemberNotFoundException;
 import com.collab.taskmanager.exceptions.TeamNotFoundException;
 import com.collab.taskmanager.exceptions.UserNotFoundException;
+import com.collab.taskmanager.repos.ProjectRepo;
 import com.collab.taskmanager.repos.TeamMembersRepo;
 import com.collab.taskmanager.repos.TeamRepo;
 import com.collab.taskmanager.repos.UserRepo;
@@ -26,11 +28,13 @@ public class TeamService {
     private final TeamRepo teamRepo;
     private final UserRepo userRepo;
     private final TeamMembersRepo teamMembersRepo;
+    private final ProjectRepo projectRepo;
 
-    public TeamService(TeamRepo teamRepo, UserRepo userRepo, TeamMembersRepo teamMembersRepo) {
+    public TeamService(TeamRepo teamRepo, UserRepo userRepo, TeamMembersRepo teamMembersRepo, ProjectRepo projectRepo) {
         this.teamRepo = teamRepo;
         this.userRepo = userRepo;
         this.teamMembersRepo = teamMembersRepo;
+        this.projectRepo = projectRepo;
     }
 
     public TeamResponse createTeam(User user, CreateTeamRequest request) {
@@ -134,6 +138,21 @@ public class TeamService {
         }
 
         teamMembersRepo.deleteByTeamIdAndMemberId(teamId, userId);
+    }
+
+    public List<ProjectResponse> getTeamProjects(UserPrincipal user, Long teamId) {
+
+        Team team = teamRepo.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
+
+        return projectRepo.findByTeamId(teamId)
+                .stream()
+                .map(p -> new ProjectResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getDescription()
+                ))
+                .toList();
     }
 
     //Helper for checking Team management

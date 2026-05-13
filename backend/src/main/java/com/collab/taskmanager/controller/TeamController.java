@@ -2,6 +2,7 @@ package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.AddMemberRequest;
 import com.collab.taskmanager.dto.request.CreateTeamRequest;
+import com.collab.taskmanager.dto.response.ProjectResponse;
 import com.collab.taskmanager.dto.response.TeamDetailsResponse;
 import com.collab.taskmanager.dto.response.TeamMemberResponse;
 import com.collab.taskmanager.dto.response.TeamResponse;
@@ -135,5 +136,24 @@ public class TeamController {
             @PathVariable Long teamId){
         teamService.removeUserFromTeamById(currentUser, teamId,userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Get team projects",
+            description = "Returns all projects belonging to a specific team"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Team not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @GetMapping("/{teamId}/projects")
+    public ResponseEntity<List<ProjectResponse>> getTeamProjects(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long teamId
+    ) {
+        return ResponseEntity.ok(
+                teamService.getTeamProjects(user, teamId)
+        );
     }
 }
