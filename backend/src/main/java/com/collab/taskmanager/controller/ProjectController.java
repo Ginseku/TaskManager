@@ -122,4 +122,11 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getProjectById(projectId, currentUser));
     }
 
+    @GetMapping("/{projectId}/tasks")
+    public void getProjectTasks(
+            @PathVariable Long projectId
+    ) {
+
+    }
+
 }
