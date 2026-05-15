@@ -5,12 +5,15 @@ import com.collab.taskmanager.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "task")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
+@Builder
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +24,10 @@ public class Task {
     private Status status;
     @Enumerated(EnumType.STRING)
     private Priority priority;
+    @Column(nullable = true)
+    private LocalDate dueDate;
     @ManyToOne
-    @JoinColumn(name = "assigned_user_id")
+    @JoinColumn(name = "assigned_user_id",nullable = true)
     private User assignedUserId;
     @ManyToOne
     @JoinColumn(name = "created_by_id")
