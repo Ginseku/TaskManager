@@ -18,7 +18,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping("/{projectId}/}")
+    @PostMapping("/{projectId}")
     public void createTask(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId, @RequestBody CreateTaskRequest request) {
         taskService.createTask(currentUser,projectId,request);
     }
