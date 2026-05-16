@@ -1,12 +1,16 @@
 package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.request.CreateTaskRequest;
+import com.collab.taskmanager.dto.response.GetAssignedUser;
+import com.collab.taskmanager.dto.response.GetTaskResponse;
 import com.collab.taskmanager.entities.*;
 import com.collab.taskmanager.enums.Status;
 import com.collab.taskmanager.exceptions.ProjectNotFoundException;
+import com.collab.taskmanager.exceptions.TaskNotFoundException;
 import com.collab.taskmanager.exceptions.UserIsNotTeamMemberException;
-import com.collab.taskmanager.exceptions.UserNotFoundException;
 import com.collab.taskmanager.repos.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +38,7 @@ public class TaskService {
             throw new IllegalArgumentException("Project does not belong to this team");
         }
 
-        if (!teamMembersRepo.existsByTeamIdAndMemberId(project.getTeam().getId(),user.getId())){
+        if (!teamMembersRepo.existsByTeamIdAndMemberId(project.getTeam().getId(), user.getId())) {
             throw new UserIsNotTeamMemberException();
         }
 
@@ -47,5 +51,40 @@ public class TaskService {
                 .project(project)
                 .build();
         taskRepo.save(task);
+    }
+
+    public GetTaskResponse getTaskById(Long id) {
+        Task task = taskRepo.findById(id)
+                .orElseThrow(TaskNotFoundException::new);
+        return new GetTaskResponse(
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getAssignedUserId() != null
+                        ? new GetAssignedUser(
+                        task.getAssignedUserId().getId(),
+                        task.getAssignedUserId().getName()
+                )
+                        : null,
+                task.getDueDate()
+        );
+    }
+
+    public Page<GetTaskResponse> getAllTasks(Pageable pageable) {
+        return taskRepo.findAll(pageable)
+                .map(task -> new GetTaskResponse(
+                        task.getTitle(),
+                        task.getDescription(),
+                        task.getStatus(),
+                        task.getPriority(),
+                        task.getAssignedUserId() != null
+                                ? new GetAssignedUser(
+                                task.getAssignedUserId().getId(),
+                                task.getAssignedUserId().getName()
+                        )
+                                : null,
+                        task.getDueDate()
+                ));
     }
 }

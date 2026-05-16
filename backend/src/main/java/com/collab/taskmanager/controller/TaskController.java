@@ -1,8 +1,13 @@
 package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.CreateTaskRequest;
+import com.collab.taskmanager.dto.response.GetTaskResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TaskService;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,14 +28,14 @@ public class TaskController {
         taskService.createTask(currentUser,projectId,request);
     }
 
-    @GetMapping()
-    public void getAllTasks() {
-
+    @GetMapping() // /tasks?page=0&size=5 - will return first page with 5 tasks
+    public ResponseEntity<Page<GetTaskResponse>> getAllTasks(@ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAllTasks(pageable));
     }
 
     @GetMapping("/{id}")
-    public void getTaskById(@PathVariable Long id) {
-
+    public ResponseEntity<GetTaskResponse> getTaskById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
     @PutMapping("/{id}")
