@@ -1,6 +1,7 @@
 package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.CreateTaskRequest;
+import com.collab.taskmanager.dto.request.UpdateTaskRequest;
 import com.collab.taskmanager.dto.response.GetTaskResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TaskService;
@@ -28,23 +29,18 @@ public class TaskController {
         taskService.createTask(currentUser,projectId,request);
     }
 
-    @GetMapping() // /tasks?page=0&size=5 - will return first page with 5 tasks
-    public ResponseEntity<Page<GetTaskResponse>> getAllTasks(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(taskService.getAllTasks(pageable));
+    @GetMapping("/{projectId}") // /tasks?page=0&size=5 - will return first page with 5 tasks
+    public ResponseEntity<Page<GetTaskResponse>> getAllTasks(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId, @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAllTasks(currentUser,projectId,pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GetTaskResponse> getTaskById(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.getTaskById(id));
-    }
-
-    @PutMapping("/{id}")
-    public void updateTask(@PathVariable Long id) {
-
+    public ResponseEntity<GetTaskResponse> getTaskById(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId,@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.getTaskById(id,currentUser,projectId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal currentUser) {
         taskService.deleteTaskById(id);
         return ResponseEntity.noContent().build();
     }
@@ -56,20 +52,13 @@ public class TaskController {
 
     }
 
-    @PutMapping("/{id}/status")
-    public void updateTaskStatus(
-            @PathVariable Long id
-    ) {
-
+    @PutMapping("/{projectId}/{taskId}")
+    public void updateTask(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId,@PathVariable Long taskId, @RequestBody UpdateTaskRequest request) {
+        taskService.updateTask(currentUser,projectId,taskId,request);
     }
 
     @GetMapping("/me")
     public void getUserTasks() {
-
-    }
-
-    @PatchMapping("/{date}")
-    public void addDueDate(@PathVariable LocalDate date){
 
     }
 

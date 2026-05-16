@@ -90,4 +90,10 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(e.getMessage());
     }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handlerUserIsNotAdmin(AccessDeniedException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
 }
