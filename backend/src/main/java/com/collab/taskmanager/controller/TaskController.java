@@ -34,14 +34,14 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks(currentUser,projectId,pageable));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{projectId}/{id}")
     public ResponseEntity<GetTaskResponse> getTaskById(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId,@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskById(id,currentUser,projectId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal currentUser) {
-        taskService.deleteTaskById(id);
+        taskService.deleteTaskById(id,currentUser);
         return ResponseEntity.noContent().build();
     }
 

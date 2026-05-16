@@ -23,11 +23,13 @@ public class TaskService {
     private final ProjectRepo projectRepo;
     private final TeamMembersRepo teamMembersRepo;
     private final TaskRepo taskRepo;
+    private final TaskPermissionService taskPermissionService;
 
-    public TaskService(ProjectRepo projectRepo, TeamMembersRepo teamMembersRepo, TaskRepo taskRepo) {
+    public TaskService(ProjectRepo projectRepo, TeamMembersRepo teamMembersRepo, TaskRepo taskRepo, TaskPermissionService taskPermissionService) {
         this.projectRepo = projectRepo;
         this.teamMembersRepo = teamMembersRepo;
         this.taskRepo = taskRepo;
+        this.taskPermissionService = taskPermissionService;
     }
 
     public void createTask(UserPrincipal currentUser, Long projectId, CreateTaskRequest request) {
@@ -40,7 +42,7 @@ public class TaskService {
             throw new IllegalArgumentException("Project does not belong to this team");
         }
 
-        validateTeamMember(project.getTeam().getId(), user.getId());
+        taskPermissionService.validateTeamMember(project.getTeam().getId(), user.getId());
 
         Task task = Task.builder()
                 .title(request.title())
@@ -55,7 +57,7 @@ public class TaskService {
 
     public GetTaskResponse getTaskById(Long id, UserPrincipal currentUser, Long projectId) {
 
-        validateTeamMember(projectId,currentUser.getUser().getId());
+        taskPermissionService.validateTeamMember(projectId,currentUser.getUser().getId());
 
         Task task = taskRepo.findById(id)
                 .orElseThrow(TaskNotFoundException::new);
@@ -76,7 +78,7 @@ public class TaskService {
 
     public Page<GetTaskResponse> getAllTasks(UserPrincipal currentUser, Long projectId, Pageable pageable) {
 
-        validateTeamMember(projectId,currentUser.getUser().getId());
+        taskPermissionService.validateTeamMember(projectId,currentUser.getUser().getId());
 
         return taskRepo.findAll(pageable)
                 .map(task -> new GetTaskResponse(
@@ -100,7 +102,7 @@ public class TaskService {
         Task task = taskRepo.findById(id)
                 .orElseThrow(TaskNotFoundException::new);
 
-        validateDeletePermission(task, user);
+        taskPermissionService.validateDeletePermission(task, user);
 
         taskRepo.delete(task);
     }
@@ -112,7 +114,7 @@ public class TaskService {
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(TaskNotFoundException::new);
 
-        validateTeamMember(projectId,currentUser.getUser().getId());
+        taskPermissionService.validateTeamMember(projectId,currentUser.getUser().getId());
 
         // name
         if (request.name() != null && !request.name().isBlank()) {
@@ -143,21 +145,6 @@ public class TaskService {
 
     }
 
-    private void validateTeamMember(Long teamId, Long userId) {
-        if (!teamMembersRepo.existsByTeamIdAndMemberId(teamId, userId)) {
-            throw new UserIsNotTeamMemberException();
-        }
-    }
-    private void validateDeletePermission(Task task, User user) {
 
-        boolean isOwner = task.getCreatedBy().getId().equals(user.getId());
-
-        boolean isAssignee = task.getAssignedUserId() != null &&
-                task.getAssignedUserId().getId().equals(user.getId());
-
-        if (!isOwner && !isAssignee) {
-            throw new AccessDeniedException();
-        }
-    }
 
 }
