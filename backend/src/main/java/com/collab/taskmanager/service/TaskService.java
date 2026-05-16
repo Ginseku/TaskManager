@@ -12,8 +12,10 @@ import com.collab.taskmanager.repos.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class TaskService {
 
     private final TeamRepo teamRepo;
@@ -86,5 +88,9 @@ public class TaskService {
                                 : null,
                         task.getDueDate()
                 ));
+    }
+
+    public void deleteTaskById(Long id) {
+        taskRepo.deleteById(id);
     }
 }
