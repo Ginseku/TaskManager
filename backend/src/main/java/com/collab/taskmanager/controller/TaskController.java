@@ -34,9 +34,9 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasksByProjectId(currentUser,projectId,pageable));
     }
 
-    @GetMapping("/{projectId}/{id}")
-    public ResponseEntity<GetTaskResponse> getTaskById(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId,@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.getTaskById(id,currentUser,projectId));
+    @GetMapping("/{projectId}/{taskId}")
+    public ResponseEntity<GetTaskResponse> getTaskByTaskIdAndProjectId(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId,@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.getTaskById(taskId,currentUser,projectId));
     }
 
     @DeleteMapping("/{id}")

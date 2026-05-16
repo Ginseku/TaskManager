@@ -52,13 +52,13 @@ public class TaskService {
         taskRepo.save(task);
     }
 
-    public GetTaskResponse getTaskById(Long id, UserPrincipal currentUser, Long projectId) {
+    public GetTaskResponse getTaskById(Long taskId, UserPrincipal currentUser, Long projectId) {
 
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
         taskPermissionService.validateTeamMember(project.getTeam().getId(),currentUser.getUser().getId());
 
-        Task task = taskRepo.findById(id)
+        Task task = taskRepo.findByProject_IdAndId(project.getId(),taskId)
                 .orElseThrow(TaskNotFoundException::new);
         return new GetTaskResponse(
                 task.getTitle(),
