@@ -38,9 +38,6 @@ public class TaskService {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
 
-        if (project.getTeam().getId() == null) {
-            throw new IllegalArgumentException("Project does not belong to this team");
-        }
 
         taskPermissionService.validateTeamMember(project.getTeam().getId(), user.getId());
 
@@ -57,7 +54,9 @@ public class TaskService {
 
     public GetTaskResponse getTaskById(Long id, UserPrincipal currentUser, Long projectId) {
 
-        taskPermissionService.validateTeamMember(projectId,currentUser.getUser().getId());
+        Project project = projectRepo.findById(projectId)
+                .orElseThrow(ProjectNotFoundException::new);
+        taskPermissionService.validateTeamMember(project.getTeam().getId(),currentUser.getUser().getId());
 
         Task task = taskRepo.findById(id)
                 .orElseThrow(TaskNotFoundException::new);
@@ -76,11 +75,14 @@ public class TaskService {
         );
     }
 
-    public Page<GetTaskResponse> getAllTasks(UserPrincipal currentUser, Long projectId, Pageable pageable) {
+    public Page<GetTaskResponse> getAllTasksByProjectId(UserPrincipal currentUser, Long projectId, Pageable pageable) {
 
-        taskPermissionService.validateTeamMember(projectId,currentUser.getUser().getId());
+        Project project = projectRepo.findById(projectId)
+                .orElseThrow(ProjectNotFoundException::new);
 
-        return taskRepo.findAll(pageable)
+        taskPermissionService.validateTeamMember(project.getTeam().getId(),currentUser.getUser().getId());
+
+        return taskRepo.findAllByProjectId(projectId,pageable)
                 .map(task -> new GetTaskResponse(
                         task.getTitle(),
                         task.getDescription(),
@@ -110,11 +112,12 @@ public class TaskService {
     public void updateTask(UserPrincipal currentUser, Long projectId, Long taskId, UpdateTaskRequest request) {
 
         User user = currentUser.getUser();
-
+        Project project = projectRepo.findById(projectId)
+                .orElseThrow(ProjectNotFoundException::new);
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(TaskNotFoundException::new);
 
-        taskPermissionService.validateTeamMember(projectId,currentUser.getUser().getId());
+        taskPermissionService.validateTeamMember(project.getTeam().getId(),currentUser.getUser().getId());
 
         // name
         if (request.name() != null && !request.name().isBlank()) {

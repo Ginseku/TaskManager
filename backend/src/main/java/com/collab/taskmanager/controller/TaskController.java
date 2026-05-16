@@ -30,8 +30,8 @@ public class TaskController {
     }
 
     @GetMapping("/{projectId}") // /tasks?page=0&size=5 - will return first page with 5 tasks
-    public ResponseEntity<Page<GetTaskResponse>> getAllTasks(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId, @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(taskService.getAllTasks(currentUser,projectId,pageable));
+    public ResponseEntity<Page<GetTaskResponse>> getAllTasksByProjectId(@AuthenticationPrincipal UserPrincipal currentUser, @PathVariable Long projectId, @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAllTasksByProjectId(currentUser,projectId,pageable));
     }
 
     @GetMapping("/{projectId}/{id}")
