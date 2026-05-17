@@ -61,6 +61,7 @@ public class TaskService {
         Task task = taskRepo.findByProject_IdAndId(project.getId(),taskId)
                 .orElseThrow(TaskNotFoundException::new);
         return new GetTaskResponse(
+                task.getId(),
                 task.getTitle(),
                 task.getDescription(),
                 task.getStatus(),
@@ -71,7 +72,8 @@ public class TaskService {
                         task.getAssignedUserId().getName()
                 )
                         : null,
-                task.getDueDate()
+                task.getDueDate(),
+                task.getCreatedBy().getId()
         );
     }
 
@@ -84,6 +86,7 @@ public class TaskService {
 
         return taskRepo.findAllByProjectId(projectId,pageable)
                 .map(task -> new GetTaskResponse(
+                        task.getId(),
                         task.getTitle(),
                         task.getDescription(),
                         task.getStatus(),
@@ -94,7 +97,8 @@ public class TaskService {
                                 task.getAssignedUserId().getName()
                         )
                                 : null,
-                        task.getDueDate()
+                        task.getDueDate(),
+                        task.getCreatedBy().getId()
                 ));
     }
 
