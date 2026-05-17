@@ -4,11 +4,12 @@ export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 export type Task = {
     id: number;
     title: string;
+    name?: string;
     description?: string;
     status: TaskStatus;
     priority: TaskPriority;
     projectId: number;
     assignedUser?: number;
-    createdBy: number;
+    createdById: number;
     dueDate?: string;
 }

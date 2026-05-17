@@ -437,3 +437,126 @@ code {
   color: var(--accent);
   margin-right: 8px;
 }
+
+/* Inputs & textareas */
+.input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  width: 100%;
+  font-size: 16px;
+}
+
+.textarea {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  width: 100%;
+  min-height: 80px;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Lists */
+.member-list, .task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.member-card {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.task-card {
+  display: flex;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.task-card:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Task/member lists */
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Form column */
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Task container */
+.task-card-container {
+  margin-bottom: 10px;
+}
+
+/* Flex row for link + button */
+.task-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: background-color 0.2s ease;
+}
+
+.task-card-row:hover {
+  background-color: #f0f0f0;
+}
+
+/* Task link */
+.task-card {
+  flex: 1;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Delete button */
+.delete-task-btn {
+  margin-left: 12px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.delete-task-btn:hover {
+  background-color: #ff4c4c;
+  color: white;
+  transform: scale(1.05);
+}
+

@@ -1,12 +1,13 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 //import { mockProjects } from "../mock/data";
 import { routes } from "../router/routes";
-import { useEffect, useState } from "react";
-import { getTasksByProject } from "../api/tasks";
+import { useEffect, useState, useRef } from "react";
+import { getTasksByProject, createTask, deleteTask } from "../api/tasks";
 import {
   getProjectsByTeam,
   deleteProject,
   getProjectMembers,
+  type ProjectMember,
 } from "../api/projects";
 import { getTeamById } from "../api/teams";
 import type { Team } from "../types/team";
@@ -14,46 +15,65 @@ import type { Team } from "../types/team";
 import type { Task } from "../types/task";
 import type { Project } from "../types/project";
 import type { PublicUser } from "../types/publicUser";
-import { getProjectById } from "../api/projects";
-import { updateProject } from "../api/projects";
+import { getProjectById, updateProject } from "../api/projects";
+import { getMe } from "../api/auth";
+import type { User } from "../types/user";
 
 export default function ProjectDetails() {
-  const { projectId, teamId } = useParams<{
-    projectId: string;
-    teamId: string;
-  }>();
+  //const { projectId, teamId } = useParams<{
+  //  projectId: string;
+  //  teamId: string;
+  //}>();
+  const params = useParams();
+
+  const projectId = Number(params.projectId);
+  const teamId = Number(params.teamId);
+
+  if (!params.projectId || !params.teamId) {
+    return <div>Invalid URL</div>;
+  }
 
   const navigate = useNavigate();
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [members, setMembers] = useState<PublicUser[]>([]);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
   const [team, setTeam] = useState<Team | null>(null);
   const canManageMembers = team?.canManageMembers ?? false;
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (!projectId) return;
+    if (isNaN(projectId) || isNaN(teamId)) {
+      setLoading(false);
+      return;
+    }
 
     Promise.all([
+      getMe(),
       getTeamById(Number(teamId)),
       getProjectById(Number(projectId)),
       getTasksByProject(Number(projectId)),
       getProjectMembers(Number(projectId)),
     ])
-      .then(([teamData, projectData, tasksData, membersData]) => {
+      .then(([user, teamData, projectData, tasksData, membersData]) => {
+        setCurrentUser(user);
         setTeam(teamData);
         setProject(projectData);
         setTasks(tasksData);
-        setMembers(membersData);
-        setEditName(projectData?.name ?? "");
-        setEditDescription(projectData?.description ?? "");
+        setMembers(membersData as any);
+
+        if (projectData) {
+          setEditName(projectData.name ?? "");
+          setEditDescription(projectData.description ?? "");
+        }
       })
       .finally(() => setLoading(false));
-  }, [projectId]);
+  }, [projectId, teamId]);
 
   const handleDelete = async () => {
     if (!projectId || !teamId) return;
@@ -92,6 +112,36 @@ export default function ProjectDetails() {
     }
   };
 
+  const handleCreateTask = async () => {
+    if (!projectId || !formRef.current) return;
+
+    const form = formRef.current;
+
+    const titleInput = form.elements.namedItem(
+      "title",
+    ) as HTMLInputElement | null;
+    const descriptionInput = form.elements.namedItem(
+      "description",
+    ) as HTMLInputElement | null;
+
+    if (!titleInput) return;
+
+    const title = titleInput.value;
+    const description = descriptionInput?.value ?? "";
+
+    try {
+      await createTask(projectId, { title, description });
+
+      const updatedTasks = await getTasksByProject(projectId);
+      setTasks(updatedTasks);
+
+      form.reset(); // safe now, using ref
+    } catch (err) {
+      console.error("Failed to create task:", err);
+      alert("Failed to create task");
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   if (!project) {
@@ -99,9 +149,7 @@ export default function ProjectDetails() {
   }
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", gap: 24, padding: 24 }}
-    >
+    <div className="page-column">
       {/* PROJECT HEADER */}
       <section className="section-card">
         {isEditing ? (
@@ -109,28 +157,16 @@ export default function ProjectDetails() {
             <input
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              style={{
-                padding: "8px 10px",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-                width: "100%",
-              }}
+              className="input"
             />
 
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
-              style={{
-                marginTop: 8,
-                padding: "8px 10px",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-                width: "100%",
-                minHeight: 80,
-              }}
+              className="textarea"
             />
 
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+            <div className="flex-row-gap">
               <button className="btn btn-primary" onClick={handleUpdate}>
                 Save
               </button>
@@ -146,7 +182,7 @@ export default function ProjectDetails() {
             <p>{project.description}</p>
 
             {canManageMembers && (
-              <div style={{ display: "flex", gap: 8 }}>
+              <div className="flex-row-gap">
                 <button className="btn" onClick={() => setIsEditing(true)}>
                   Edit
                 </button>
@@ -167,17 +203,9 @@ export default function ProjectDetails() {
         {members.length === 0 ? (
           <p>No members</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="member-list">
             {members.map((m) => (
-              <div
-                key={m.id}
-                style={{
-                  padding: "8px 10px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  background: "var(--bg)",
-                }}
-              >
+              <div key={m.name} className="member-card">
                 {m.name}
               </div>
             ))}
@@ -192,28 +220,66 @@ export default function ProjectDetails() {
         {tasks.length === 0 ? (
           <p>No tasks yet</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {tasks.map((task) => (
-              <Link
-                key={task.id}
-                to={routes.task(Number(teamId), project.id, task.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "10px 12px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  textDecoration: "none",
-                  color: "var(--text-h)",
-                  background: "var(--bg)",
-                  transition: "0.2s",
-                }}
-              >
-                {task.title}
-              </Link>
-            ))}
+          <div className="task-list">
+            {tasks.map((task) => {
+              const canDelete =
+                currentUser &&
+                (task.createdById === currentUser.id ||
+                  task.assignedUser === currentUser.id);
+              return (
+                <div key={task.id} className="task-card-container">
+                  <Link
+                    to={routes.task(Number(teamId), project.id, task.id)}
+                    className="task-card"
+                  >
+                    {task.name ?? task.title ?? "Unnamed Task"}
+                  </Link>
+
+                  {canDelete && (
+                    <button
+                      className="btn btn-danger btn-small delete-task-btn"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (
+                          confirm("Are you sure you want to delete this task?")
+                        ) {
+                          try {
+                            await deleteTask(task.id);
+                            setTasks((prev) =>
+                              prev.filter((t) => t.id !== task.id),
+                            );
+                          } catch (err) {
+                            console.error(err);
+                            alert("Failed to delete task");
+                          }
+                        }
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
+      </section>
+      <section className="section-card">
+        <h2>Create New Task</h2>
+        <form
+          ref={formRef}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCreateTask();
+          }}
+          className="form-column"
+        >
+          <input name="title" placeholder="Task title" required />
+          <input name="description" placeholder="Description" />
+          <button type="submit" className="btn btn-primary">
+            Add Task
+          </button>
+        </form>
       </section>
     </div>
   );
