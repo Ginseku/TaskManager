@@ -6,5 +6,5 @@ import com.collab.taskmanager.enums.Status;
 
 import java.time.LocalDate;
 
-public record GetTaskResponse(Long id, String name, String description, Status status, Priority priority, GetAssignedUser assignedUser, LocalDate dueDate, Long createdBy) {
+public record GetTaskResponse(Long id, String name, String description, Status status, Priority priority, GetAssignedUser assignedUser, LocalDate dueDate, Long createdById) {
 }

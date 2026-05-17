@@ -224,7 +224,7 @@ export default function ProjectDetails() {
             {tasks.map((task) => {
               const canDelete =
                 currentUser &&
-                (task.createdBy === currentUser.id ||
+                (task.createdById === currentUser.id ||
                   task.assignedUser === currentUser.id);
               return (
                 <div key={task.id} className="task-card-container">

@@ -10,6 +10,6 @@ export type Task = {
     priority: TaskPriority;
     projectId: number;
     assignedUser?: number;
-    createdBy: number;
+    createdById: number;
     dueDate?: string;
 }
