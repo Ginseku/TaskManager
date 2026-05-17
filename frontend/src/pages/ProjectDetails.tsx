@@ -7,6 +7,7 @@ import {
   getProjectsByTeam,
   deleteProject,
   getProjectMembers,
+  type ProjectMember,
 } from "../api/projects";
 import { getTeamById } from "../api/teams";
 import type { Team } from "../types/team";
@@ -18,17 +19,25 @@ import { getProjectById } from "../api/projects";
 import { updateProject } from "../api/projects";
 
 export default function ProjectDetails() {
-  const { projectId, teamId } = useParams<{
-    projectId: string;
-    teamId: string;
-  }>();
+  //const { projectId, teamId } = useParams<{
+  //  projectId: string;
+  //  teamId: string;
+  //}>();
+  const params = useParams();
+
+  const projectId = Number(params.projectId);
+  const teamId = Number(params.teamId);
+
+  if (!params.projectId || !params.teamId) {
+  return <div>Invalid URL</div>;
+}
 
   const navigate = useNavigate();
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [members, setMembers] = useState<PublicUser[]>([]);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
   const [team, setTeam] = useState<Team | null>(null);
   const canManageMembers = team?.canManageMembers ?? false;
   const [isEditing, setIsEditing] = useState(false);
@@ -36,24 +45,31 @@ export default function ProjectDetails() {
   const [editDescription, setEditDescription] = useState("");
 
   useEffect(() => {
-    if (!projectId) return;
+    if (isNaN(projectId) || isNaN(teamId)) {
+      setLoading(false);
+      return;
+    }
 
+    console.log("projectId:", projectId, "teamId:", teamId);
     Promise.all([
       getTeamById(Number(teamId)),
       getProjectById(Number(projectId)),
-      getTasksByProject(Number(projectId)),
+      //getTasksByProject(Number(projectId)),
       getProjectMembers(Number(projectId)),
     ])
-      .then(([teamData, projectData, tasksData, membersData]) => {
+      .then(([teamData, projectData, membersData]) => {
         setTeam(teamData);
         setProject(projectData);
-        setTasks(tasksData);
-        setMembers(membersData);
-        setEditName(projectData?.name ?? "");
-        setEditDescription(projectData?.description ?? "");
+        //setTasks(tasksData);
+        setMembers(membersData as any);
+
+        if (projectData) {
+          setEditName(projectData.name ?? "");
+          setEditDescription(projectData.description ?? "");
+        }
       })
       .finally(() => setLoading(false));
-  }, [projectId]);
+  }, [projectId, teamId]);
 
   const handleDelete = async () => {
     if (!projectId || !teamId) return;
@@ -170,7 +186,7 @@ export default function ProjectDetails() {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {members.map((m) => (
               <div
-                key={m.id}
+                key={m.name}
                 style={{
                   padding: "8px 10px",
                   border: "1px solid var(--border)",

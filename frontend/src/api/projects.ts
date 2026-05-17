@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type { Project } from "../types/project";
 import { mockProjects } from "../mock/data";
+import type { ProjectResponse } from "../types/ProjectResponse";
 
 const USE_MOCK = false;
 
@@ -10,8 +11,8 @@ export type ProjectPayload = {
 };
 
 export type ProjectMember = {
-  id: number;
   name: string;
+  role: "OWNER" | "ADMIN" | "MEMBER" | string;
 };
 
 export const getProjectsByTeam = async (teamId: number): Promise<Project[]> => {
@@ -30,8 +31,17 @@ export const getProjectById = async (
     return mockProjects.find((p) => p.id === projectId) || null;
   }
 
-  const res = await api.get<Project>(`/project/${projectId}/details`);
-  return res.data;
+  const res = await api.get<ProjectResponse>(`/project/${projectId}/details`);
+
+  if (!res.data) return null;
+
+  return {
+    id: res.data.id,
+    name: res.data.name,
+    description: res.data.description,
+    teamId: 0,
+    createdBy: 0,
+  };
 };
 
 export const createProject = async (

@@ -29,8 +29,10 @@ export default function Dashboard() {
         // Load projects for every team
         const projectsPerTeam = await Promise.all(
           teamsData.map((team) =>
-            getProjectsByTeam(team.id)
-          )
+            getProjectsByTeam(team.id).then((projects) =>
+              projects.map((p) => ({ ...p, teamId: team.id })),
+            ),
+          ),
         );
         // Flatten arrays
         const allProjects = projectsPerTeam.flat();
@@ -47,7 +49,7 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-   if (loading) {
+  if (loading) {
     return <p>Loading dashboard...</p>;
   }
 
@@ -66,46 +68,35 @@ export default function Dashboard() {
     >
       {/* HEADER */}
       <section className="section-card">
-        <h1 style={{ marginBottom: "8px" }}>
-          Dashboard
-        </h1>
+        <h1 style={{ marginBottom: "8px" }}>Dashboard</h1>
 
-        <p style={{ opacity: 0.8 }}>
-          Welcome back, {user?.name || "Guest"}
-        </p>
+        <p style={{ opacity: 0.8 }}>Welcome back, {user?.name || "Guest"}</p>
       </section>
 
       {/* STATS */}
       <section
         style={{
           display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(180px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
           gap: "16px",
         }}
       >
         <div className="section-card">
           <h2>{teams.length}</h2>
 
-          <p style={{ opacity: 0.7 }}>
-            Teams
-          </p>
+          <p style={{ opacity: 0.7 }}>Teams</p>
         </div>
 
         <div className="section-card">
           <h2>{projects.length}</h2>
 
-          <p style={{ opacity: 0.7 }}>
-            Projects
-          </p>
+          <p style={{ opacity: 0.7 }}>Projects</p>
         </div>
 
         <div className="section-card">
           <h2>0</h2>
 
-          <p style={{ opacity: 0.7 }}>
-            Tasks
-          </p>
+          <p style={{ opacity: 0.7 }}>Tasks</p>
         </div>
       </section>
 
@@ -122,9 +113,7 @@ export default function Dashboard() {
           <h2>Your Teams</h2>
 
           <Link to={routes.teams()}>
-            <button className="btn btn-primary">
-              View All
-            </button>
+            <button className="btn btn-primary">View All</button>
           </Link>
         </div>
 
@@ -150,9 +139,7 @@ export default function Dashboard() {
                   color: "inherit",
                 }}
               >
-                <div style={{ fontWeight: 600 }}>
-                  {team.name}
-                </div>
+                <div style={{ fontWeight: 600 }}>{team.name}</div>
               </Link>
             ))}
           </div>
@@ -161,9 +148,7 @@ export default function Dashboard() {
 
       {/* PROJECTS */}
       <section className="section-card">
-        <h2 style={{ marginBottom: "16px" }}>
-          Projects
-        </h2>
+        <h2 style={{ marginBottom: "16px" }}>Projects</h2>
 
         {projects.length === 0 ? (
           <p>No projects yet</p>
@@ -176,17 +161,10 @@ export default function Dashboard() {
             }}
           >
             {projects.map((project) => {
-              const team = teams.find(
-                (t) => t.id === project.teamId
-              );
-
               return (
                 <Link
                   key={project.id}
-                  to={routes.project(
-                    project.teamId,
-                    project.id
-                  )}
+                  to={routes.project(project.teamId, project.id)}
                   style={{
                     padding: "12px",
                     border: "1px solid var(--border)",
@@ -198,9 +176,7 @@ export default function Dashboard() {
                     alignItems: "center",
                   }}
                 >
-                  <span style={{ fontWeight: 600 }}>
-                    {project.name}
-                  </span>
+                  <span style={{ fontWeight: 600 }}>{project.name}</span>
 
                   <span
                     style={{
@@ -208,7 +184,7 @@ export default function Dashboard() {
                       opacity: 0.7,
                     }}
                   >
-                    {team?.name}
+                    {teams.find((t) => t.id === project.teamId)?.name}
                   </span>
                 </Link>
               );
@@ -219,4 +195,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
