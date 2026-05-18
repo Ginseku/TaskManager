@@ -4,6 +4,17 @@ import { mockTasks } from "../mock/data";
 
 const USE_MOCK = false;
 
+export type PageResponse<T> = {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number; // current page
+  first: boolean;
+  last: boolean;
+};
+
+/*
 export const getTasksByProject = async (projectId: number): Promise<Task[]> => {
   if (USE_MOCK) {
     return mockTasks.filter((t) => t.projectId === projectId);
@@ -12,13 +23,26 @@ export const getTasksByProject = async (projectId: number): Promise<Task[]> => {
   const res = await api.get<{content:  Task[]}>(`/tasks/${projectId}`);
   return res.data.content;
 };
+*/
+
+export const getTasksByProject = async (
+  projectId: number,
+  page = 0,
+  size = 5,
+): Promise<PageResponse<Task>> => {
+  const res = await api.get<PageResponse<Task>>(
+    `/tasks/${projectId}?page=${page}&size=${size}`,
+  );
+
+  return res.data;
+};
 
 export const getTaskById = async (projectId: number, taskId: number): Promise<Task | null> => {
   if (USE_MOCK) {
     return mockTasks.find((t) => t.id === taskId) || null;
   }
 
-  const res = await api.get<Task>(`/tasks//${projectId}/${taskId}`);
+  const res = await api.get<Task>(`/tasks/${projectId}/${taskId}`);
   return res.data;
 };
 
