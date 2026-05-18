@@ -47,6 +47,10 @@ export default function ProjectDetails() {
   const formRef = useRef<HTMLFormElement>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
+
   useEffect(() => {
     if (isNaN(projectId) || isNaN(teamId)) {
       setLoading(false);
@@ -57,14 +61,16 @@ export default function ProjectDetails() {
       getMe(),
       getTeamById(Number(teamId)),
       getProjectById(Number(projectId)),
-      getTasksByProject(Number(projectId)),
+      //getTasksByProject(Number(projectId)),
+      getTasksByProject(Number(projectId), page, pageSize),
       getProjectMembers(Number(projectId)),
     ])
       .then(([user, teamData, projectData, tasksData, membersData]) => {
         setCurrentUser(user);
         setTeam(teamData);
         setProject(projectData);
-        setTasks(tasksData);
+        setTasks(tasksData.content);
+        setTotalPages(tasksData.totalPages);
         setMembers(membersData as any);
 
         if (projectData) {
@@ -73,7 +79,7 @@ export default function ProjectDetails() {
         }
       })
       .finally(() => setLoading(false));
-  }, [projectId, teamId]);
+  }, [projectId, teamId, page, pageSize]);
 
   const handleDelete = async () => {
     if (!projectId || !teamId) return;
@@ -132,8 +138,10 @@ export default function ProjectDetails() {
     try {
       await createTask(projectId, { title, description });
 
-      const updatedTasks = await getTasksByProject(projectId);
-      setTasks(updatedTasks);
+      const updatedTasks = await getTasksByProject(projectId, page, pageSize);
+
+      setTasks(updatedTasks.content);
+      setTotalPages(updatedTasks.totalPages);
 
       form.reset(); // safe now, using ref
     } catch (err) {
@@ -245,9 +253,15 @@ export default function ProjectDetails() {
                         ) {
                           try {
                             await deleteTask(task.id);
-                            setTasks((prev) =>
-                              prev.filter((t) => t.id !== task.id),
+
+                            const updatedTasks = await getTasksByProject(
+                              projectId,
+                              page,
+                              pageSize,
                             );
+
+                            setTasks(updatedTasks.content);
+                            setTotalPages(updatedTasks.totalPages);
                           } catch (err) {
                             console.error(err);
                             alert("Failed to delete task");
@@ -263,6 +277,27 @@ export default function ProjectDetails() {
             })}
           </div>
         )}
+        <div className="pagination">
+          <button
+            className="btn"
+            disabled={page === 0}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {page + 1} of {totalPages}
+          </span>
+
+          <button
+            className="btn"
+            disabled={page + 1 >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </div>
       </section>
       <section className="section-card">
         <h2>Create New Task</h2>
