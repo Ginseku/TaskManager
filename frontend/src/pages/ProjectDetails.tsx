@@ -19,6 +19,11 @@ import { getProjectById, updateProject } from "../api/projects";
 import { getMe } from "../api/auth";
 import type { User } from "../types/user";
 
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+
+import { UserDroppable } from "../components/UserDroppable";
+import { TaskDraggable } from "../components/TaskDraggable";
+
 export default function ProjectDetails() {
   //const { projectId, teamId } = useParams<{
   //  projectId: string;
@@ -150,6 +155,18 @@ export default function ProjectDetails() {
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.data.current?.type === 'task' && over.data.current?.type === 'user') {
+      const taskId = active.id as string;
+      const userId = over.id as string;
+      
+      // Assign task to user (update your state / call API)
+      // assignTaskToUser(taskId, userId);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   if (!project) {
@@ -203,102 +220,102 @@ export default function ProjectDetails() {
           </>
         )}
       </section>
+      
+      <DndContext onDragEnd={handleDragEnd}>
+        {/* MEMBERS */}
+        <section className="section-card">
+          <h2>Members</h2>
 
-      {/* MEMBERS */}
-      <section className="section-card">
-        <h2>Members</h2>
+          {members.length === 0 ? (
+            <p>No members</p>
+          ) : (
+            <div className="member-list">
+              {members.map((m) => (
+                // <div key={m.name} className="member-card">
+                //   {m.name}
+                // </div>
+                <UserDroppable key={m.name} member={m} onAssign={ () => {} } />
+              ))}
+            </div>
+          )}
+        </section>
 
-        {members.length === 0 ? (
-          <p>No members</p>
-        ) : (
-          <div className="member-list">
-            {members.map((m) => (
-              <div key={m.name} className="member-card">
-                {m.name}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+        {/* TASKS */}
+        <section className="section-card">
+          <h2>Tasks</h2>
 
-      {/* TASKS */}
-      <section className="section-card">
-        <h2>Tasks</h2>
+          {tasks.length === 0 ? (
+            <p>No tasks yet</p>
+          ) : (
+            <div className="task-list">
+              {tasks.map((task) => {
+                const canDelete =
+                  currentUser &&
+                  (task.createdById === currentUser.id ||
+                    task.assignedUser === currentUser.id);
+                return (
+                  <div key={task.id} className="task-card-container">
+                    
+                    {/* task.name ?? task.title ?? "Unnamed Task" */}
+                    <TaskDraggable key={task.id} task={task} link_details={{ teamId: teamId, projectId: project.id, taskId: task.id }}/>
 
-        {tasks.length === 0 ? (
-          <p>No tasks yet</p>
-        ) : (
-          <div className="task-list">
-            {tasks.map((task) => {
-              const canDelete =
-                currentUser &&
-                (task.createdById === currentUser.id ||
-                  task.assignedUser === currentUser.id);
-              return (
-                <div key={task.id} className="task-card-container">
-                  <Link
-                    to={routes.task(Number(teamId), project.id, task.id)}
-                    className="task-card"
-                  >
-                    {task.name ?? task.title ?? "Unnamed Task"}
-                  </Link>
+                    {canDelete && (
+                      <button
+                        className="btn btn-danger btn-small delete-task-btn"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (
+                            confirm("Are you sure you want to delete this task?")
+                          ) {
+                            try {
+                              await deleteTask(task.id);
 
-                  {canDelete && (
-                    <button
-                      className="btn btn-danger btn-small delete-task-btn"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (
-                          confirm("Are you sure you want to delete this task?")
-                        ) {
-                          try {
-                            await deleteTask(task.id);
+                              const updatedTasks = await getTasksByProject(
+                                projectId,
+                                page,
+                                pageSize,
+                              );
 
-                            const updatedTasks = await getTasksByProject(
-                              projectId,
-                              page,
-                              pageSize,
-                            );
-
-                            setTasks(updatedTasks.content);
-                            setTotalPages(updatedTasks.totalPages);
-                          } catch (err) {
-                            console.error(err);
-                            alert("Failed to delete task");
+                              setTasks(updatedTasks.content);
+                              setTotalPages(updatedTasks.totalPages);
+                            } catch (err) {
+                              console.error(err);
+                              alert("Failed to delete task");
+                            }
                           }
-                        }
-                      }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="pagination">
+            <button
+              className="btn"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {page + 1} of {totalPages}
+            </span>
+
+            <button
+              className="btn"
+              disabled={page + 1 >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </button>
           </div>
-        )}
-        <div className="pagination">
-          <button
-            className="btn"
-            disabled={page === 0}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </button>
-
-          <span>
-            Page {page + 1} of {totalPages}
-          </span>
-
-          <button
-            className="btn"
-            disabled={page + 1 >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
-      </section>
+        </section>
+      </DndContext>
       <section className="section-card">
         <h2>Create New Task</h2>
         <form
