@@ -2,5 +2,7 @@ package com.collab.taskmanager.dto.response;
 
 import com.collab.taskmanager.enums.TeamRole;
 
-public record GetProjectMembersNameResponse(String name, TeamRole role) {
+import java.util.List;
+
+public record GetProjectMembersNameResponse(String name, TeamRole role, List<String> tasks) {
 }

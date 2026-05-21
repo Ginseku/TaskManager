@@ -2,6 +2,7 @@ package com.collab.taskmanager.controller;
 
 import com.collab.taskmanager.dto.request.CreateTaskRequest;
 import com.collab.taskmanager.dto.request.UpdateTaskRequest;
+import com.collab.taskmanager.dto.response.AssignTaskResponse;
 import com.collab.taskmanager.dto.response.GetTaskResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TaskService;
@@ -45,11 +46,12 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/assign")
-    public void assignTask(
-            @PathVariable Long id
+    @PutMapping("/{taskId}/{username}/assign")
+    public ResponseEntity<AssignTaskResponse> assignTask(
+            @PathVariable Long taskId,
+            @PathVariable String username
     ) {
-
+        return taskService.assignTask(taskId, username);
     }
 
     @PutMapping("/{projectId}/{taskId}")

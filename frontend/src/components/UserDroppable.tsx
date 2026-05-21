@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { type ProjectMember } from "../api/projects";
 
-export const UserDroppable = ({ member, onAssign }: { member: ProjectMember; onAssign: (taskId: string) => void }) => {
+export const UserDroppable = ({ member, tasks }: { member: ProjectMember; tasks : String[]}) => {
   const { isOver, setNodeRef } = useDroppable({
     id: member.name,
     data: { type: 'user', member },
@@ -14,7 +14,12 @@ export const UserDroppable = ({ member, onAssign }: { member: ProjectMember; onA
       key={member.name}
       // You can also use onDragOver etc. for more feedback
     >
-      <p>{member.name}</p>
+      <div style={{width: "50%"}}>{member.name}</div>
+      <div style={{width: "50%"}}>
+        {tasks.map((task) => (
+        <div className="user-tasks"> { task } </div>
+      ))}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 //import { mockProjects } from "../mock/data";
 import { routes } from "../router/routes";
 import { useEffect, useState, useRef } from "react";
-import { getTasksByProject, createTask, deleteTask } from "../api/tasks";
+import { getTasksByProject, createTask, deleteTask, assignTask } from "../api/tasks";
 import {
   getProjectsByTeam,
   deleteProject,
@@ -155,17 +155,33 @@ export default function ProjectDetails() {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.data.current?.type === 'task' && over.data.current?.type === 'user') {
-      const taskId = active.id as string;
-      const userId = over.id as string;
+      const taskId = active.id as number;
+      const username = over.id as string;
       
       // Assign task to user (update your state / call API)
-      // assignTaskToUser(taskId, userId);
+      assignTask(taskId, username);
+      await handleAssign();
     }
   };
+
+  const handleAssign = async () => {
+    setLoading(true);
+    try {
+      await getProjectMembers(Number(projectId))
+      .then((membersData) => {
+        setMembers(membersData as any);
+      })
+      .finally(() => setLoading(false));
+    }
+    catch (err) {
+      console.error(err);
+      alert("Failed to update members");
+    }
+  }
 
   if (loading) return <div>Loading...</div>;
 
@@ -234,7 +250,7 @@ export default function ProjectDetails() {
                 // <div key={m.name} className="member-card">
                 //   {m.name}
                 // </div>
-                <UserDroppable key={m.name} member={m} onAssign={ () => {} } />
+                <UserDroppable key={m.name} member={m} tasks={m.tasks} />
               ))}
             </div>
           )}

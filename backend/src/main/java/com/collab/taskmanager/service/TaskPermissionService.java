@@ -26,8 +26,8 @@ public class TaskPermissionService {
 
         boolean isOwner = task.getCreatedBy().getId().equals(user.getId());
 
-        boolean isAssignee = task.getAssignedUserId() != null &&
-                task.getAssignedUserId().getId().equals(user.getId());
+        boolean isAssignee = task.getAssignedUser() != null &&
+                task.getAssignedUser().getId().equals(user.getId());
 
         if (!isOwner && !isAssignee) {
             throw new AccessDeniedException();

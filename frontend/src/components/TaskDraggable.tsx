@@ -47,7 +47,7 @@ export const TaskDraggable = ({
           link_details.projectId,
           link_details.taskId
         )}
-        style={{ textDecoration: "none" }}
+        style={{ "textDecoration": "none" }}
       >
         {task.name ?? task.title ?? "Unnamed Task"}
       </Link>
