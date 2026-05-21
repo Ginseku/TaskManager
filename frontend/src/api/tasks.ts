@@ -61,3 +61,7 @@ export const deleteTask = async (taskId: number) => {
 export const assignTask = async (taskId : number, username : string) => {
   return api.put(`/tasks/${taskId}/${username}/assign`);
 }
+
+export const unassignTask = async (task_title : String) => {
+  return api.put(`/tasks/${task_title}/unassign`);
+}

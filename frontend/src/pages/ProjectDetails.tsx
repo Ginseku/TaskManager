@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 //import { mockProjects } from "../mock/data";
 import { routes } from "../router/routes";
 import { useEffect, useState, useRef } from "react";
-import { getTasksByProject, createTask, deleteTask, assignTask } from "../api/tasks";
+import { getTasksByProject, createTask, deleteTask, assignTask, unassignTask } from "../api/tasks";
 import {
   getProjectsByTeam,
   deleteProject,
@@ -175,12 +175,28 @@ export default function ProjectDetails() {
       .then((membersData) => {
         setMembers(membersData as any);
       })
-      .finally(() => setLoading(false));
     }
     catch (err) {
       console.error(err);
       alert("Failed to update members");
     }
+    setLoading(false);
+  }
+
+  const handleUnassign = async (task_title : String) => {
+    setLoading(true);
+    try {
+      await unassignTask(task_title);
+      await getProjectMembers(Number(projectId))
+      .then((membersData) => {
+        setMembers(membersData as any);
+      })
+    }
+    catch (err) {
+      console.error(err);
+      alert("Failed to update members");
+    }
+    setLoading(false);
   }
 
   if (loading) return <div>Loading...</div>;
@@ -250,7 +266,7 @@ export default function ProjectDetails() {
                 // <div key={m.name} className="member-card">
                 //   {m.name}
                 // </div>
-                <UserDroppable key={m.name} member={m} tasks={m.tasks} />
+                <UserDroppable key={m.name} member={m} tasks={m.tasks} onUnassign={handleUnassign}/>
               ))}
             </div>
           )}

@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { type ProjectMember } from "../api/projects";
 
-export const UserDroppable = ({ member, tasks }: { member: ProjectMember; tasks : String[]}) => {
+export const UserDroppable = ({ member, tasks, onUnassign }: { member: ProjectMember; tasks : String[]; onUnassign: (task_title: String) => void}) => {
   const { isOver, setNodeRef } = useDroppable({
     id: member.name,
     data: { type: 'user', member },
@@ -17,7 +17,7 @@ export const UserDroppable = ({ member, tasks }: { member: ProjectMember; tasks 
       <div style={{width: "50%"}}>{member.name}</div>
       <div style={{width: "50%"}}>
         {tasks.map((task) => (
-        <div className="user-tasks"> { task } </div>
+        <button className="user-tasks" onClick={() => onUnassign(task)}> { task } </button>
       ))}
       </div>
     </div>

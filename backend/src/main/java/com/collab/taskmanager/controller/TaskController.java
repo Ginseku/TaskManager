@@ -4,6 +4,7 @@ import com.collab.taskmanager.dto.request.CreateTaskRequest;
 import com.collab.taskmanager.dto.request.UpdateTaskRequest;
 import com.collab.taskmanager.dto.response.AssignTaskResponse;
 import com.collab.taskmanager.dto.response.GetTaskResponse;
+import com.collab.taskmanager.dto.response.UnassignTaskResponse;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TaskService;
 import org.springdoc.core.annotations.ParameterObject;
@@ -49,9 +50,18 @@ public class TaskController {
     @PutMapping("/{taskId}/{username}/assign")
     public ResponseEntity<AssignTaskResponse> assignTask(
             @PathVariable Long taskId,
-            @PathVariable String username
+            @PathVariable String username,
+            @AuthenticationPrincipal UserPrincipal currentUser
     ) {
-        return taskService.assignTask(taskId, username);
+        return taskService.assignTask(taskId, username, currentUser);
+    }
+
+    @PutMapping("/{taskTitle}/unassign")
+    public ResponseEntity<UnassignTaskResponse> unassignTask(
+            @PathVariable String taskTitle,
+            @AuthenticationPrincipal UserPrincipal currentUser
+    ) {
+        return taskService.unassignTask(taskTitle, currentUser);
     }
 
     @PutMapping("/{projectId}/{taskId}")

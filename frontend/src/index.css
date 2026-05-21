@@ -575,6 +575,21 @@ code {
 }
 
 .user-tasks {
-  font-size: 12px;
+  font-size: 14px;
+  padding: 3px 6px;
+  background-color: var(--accent-bg);
   color: var(--text);
+  border: none;
+  border-radius: 25px;
+  margin: 0 10px;
+}
+
+.user-tasks:hover {
+  font-size: 14px;
+  padding: 3px 6px;
+  background-color: red;
+  color: blue;
+  color: black;
+  border: none;
+  border-radius: 25px;
 }
