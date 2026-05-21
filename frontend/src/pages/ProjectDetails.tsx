@@ -163,7 +163,7 @@ export default function ProjectDetails() {
       const username = over.id as string;
       
       // Assign task to user (update your state / call API)
-      assignTask(taskId, username);
+      await assignTask(taskId, username);
       await handleAssign();
     }
   };

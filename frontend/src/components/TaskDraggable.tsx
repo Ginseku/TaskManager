@@ -35,9 +35,10 @@ export const TaskDraggable = ({
         style={{
           cursor: "grab",
           marginRight: "10px",
+          width: "20%"
         }}
       >
-        ⠿
+        <p style={{width: "100%", backgroundColor: "#671678", borderRadius: "25px"}}>drag here!</p>
       </span>
 
       {/* NORMAL LINK */}
@@ -47,7 +48,7 @@ export const TaskDraggable = ({
           link_details.projectId,
           link_details.taskId
         )}
-        style={{ "textDecoration": "none" }}
+        style={{ "textDecoration": "none", marginLeft: "20px" }}
       >
         {task.name ?? task.title ?? "Unnamed Task"}
       </Link>
