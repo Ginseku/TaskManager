@@ -41,7 +41,8 @@ export default function ProjectDetails() {
   const navigate = useNavigate();
 
   const [project, setProject] = useState<Project | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [unassignedTasks, setUnassignedTasks] = useState<Task[]>([]);
+  const [assignedTasks, setAssignedTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [team, setTeam] = useState<Team | null>(null);
@@ -74,7 +75,8 @@ export default function ProjectDetails() {
         setCurrentUser(user);
         setTeam(teamData);
         setProject(projectData);
-        setTasks(tasksData.content);
+        setUnassignedTasks(tasksData.content.filter(td => !td.assignedUser));
+        setAssignedTasks(tasksData.content.filter(td => td.assignedUser));
         setTotalPages(tasksData.totalPages);
         setMembers(membersData as any);
 
@@ -145,7 +147,7 @@ export default function ProjectDetails() {
 
       const updatedTasks = await getTasksByProject(projectId, page, pageSize);
 
-      setTasks(updatedTasks.content);
+      setUnassignedTasks(updatedTasks.content);
       setTotalPages(updatedTasks.totalPages);
 
       form.reset(); // safe now, using ref
@@ -164,16 +166,22 @@ export default function ProjectDetails() {
       
       // Assign task to user (update your state / call API)
       await assignTask(taskId, username);
-      await handleAssign();
+      await handleAssign(taskId);
     }
   };
 
-  const handleAssign = async () => {
+  const handleAssign = async (taskId: number) => {
     setLoading(true);
     try {
       await getProjectMembers(Number(projectId))
       .then((membersData) => {
         setMembers(membersData as any);
+
+        const assigned = unassignedTasks.find(uat => Number(uat.id) === Number(taskId));
+        setUnassignedTasks(
+          unassignedTasks.filter(uat => Number(uat.id) !== Number(taskId))
+        );
+        if(assigned) setAssignedTasks(prev => [...prev,  assigned]);
       })
     }
     catch (err) {
@@ -190,7 +198,12 @@ export default function ProjectDetails() {
       await getProjectMembers(Number(projectId))
       .then((membersData) => {
         setMembers(membersData as any);
-      })
+      });
+      
+      const unassigned = assignedTasks.find(at => at.name === task_title);
+
+      setAssignedTasks(assignedTasks.filter(at => at.name !== task_title));
+      if(unassigned) setUnassignedTasks([...unassignedTasks, unassigned]);
     }
     catch (err) {
       console.error(err);
@@ -276,11 +289,11 @@ export default function ProjectDetails() {
         <section className="section-card">
           <h2>Tasks</h2>
 
-          {tasks.length === 0 ? (
+          {unassignedTasks.length === 0 ? (
             <p>No tasks yet</p>
           ) : (
             <div className="task-list">
-              {tasks.map((task) => {
+              {unassignedTasks.map((task) => {
                 const canDelete =
                   currentUser &&
                   (task.createdById === currentUser.id ||
@@ -308,7 +321,8 @@ export default function ProjectDetails() {
                                 pageSize,
                               );
 
-                              setTasks(updatedTasks.content);
+                              setUnassignedTasks(updatedTasks.content.filter(ut => ut.assignedUser == null));
+                              setAssignedTasks(updatedTasks.content.filter(ut => ut.assignedUser != null));
                               setTotalPages(updatedTasks.totalPages);
                             } catch (err) {
                               console.error(err);
