@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 //import { mockProjects } from "../mock/data";
 import { routes } from "../router/routes";
 import { useEffect, useState, useRef } from "react";
-import { getTasksByProject, createTask, deleteTask } from "../api/tasks";
+import { getTasksByProject, createTask, deleteTask, assignTask, unassignTask } from "../api/tasks";
 import {
   getProjectsByTeam,
   deleteProject,
@@ -18,6 +18,11 @@ import type { PublicUser } from "../types/publicUser";
 import { getProjectById, updateProject } from "../api/projects";
 import { getMe } from "../api/auth";
 import type { User } from "../types/user";
+
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+
+import { UserDroppable } from "../components/UserDroppable";
+import { TaskDraggable } from "../components/TaskDraggable";
 
 export default function ProjectDetails() {
   //const { projectId, teamId } = useParams<{
@@ -36,7 +41,8 @@ export default function ProjectDetails() {
   const navigate = useNavigate();
 
   const [project, setProject] = useState<Project | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [unassignedTasks, setUnassignedTasks] = useState<Task[]>([]);
+  const [assignedTasks, setAssignedTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [team, setTeam] = useState<Team | null>(null);
@@ -69,7 +75,8 @@ export default function ProjectDetails() {
         setCurrentUser(user);
         setTeam(teamData);
         setProject(projectData);
-        setTasks(tasksData.content);
+        setUnassignedTasks(tasksData.content.filter(td => !td.assignedUser));
+        setAssignedTasks(tasksData.content.filter(td => td.assignedUser));
         setTotalPages(tasksData.totalPages);
         setMembers(membersData as any);
 
@@ -140,7 +147,7 @@ export default function ProjectDetails() {
 
       const updatedTasks = await getTasksByProject(projectId, page, pageSize);
 
-      setTasks(updatedTasks.content);
+      setUnassignedTasks(updatedTasks.content);
       setTotalPages(updatedTasks.totalPages);
 
       form.reset(); // safe now, using ref
@@ -149,6 +156,61 @@ export default function ProjectDetails() {
       alert("Failed to create task");
     }
   };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.data.current?.type === 'task' && over.data.current?.type === 'user') {
+      const taskId = active.id as number;
+      const username = over.id as string;
+      
+      // Assign task to user (update your state / call API)
+      await assignTask(taskId, username);
+      await handleAssign(taskId);
+    }
+  };
+
+  const handleAssign = async (taskId: number) => {
+    setLoading(true);
+    try {
+      await getProjectMembers(Number(projectId))
+      .then((membersData) => {
+        setMembers(membersData as any);
+
+        const assigned = unassignedTasks.find(uat => Number(uat.id) === Number(taskId));
+        setUnassignedTasks(
+          unassignedTasks.filter(uat => Number(uat.id) !== Number(taskId))
+        );
+        if(assigned) setAssignedTasks(prev => [...prev,  assigned]);
+      })
+    }
+    catch (err) {
+      console.error(err);
+      alert("Failed to update members");
+    }
+    setLoading(false);
+  }
+
+  const handleUnassign = async (task_title : String) => {
+    setLoading(true);
+    try {
+      await unassignTask(task_title);
+      await getProjectMembers(Number(projectId))
+      .then((membersData) => {
+        setMembers(membersData as any);
+      });
+      
+      const unassigned = assignedTasks.find(at => at.name === task_title);
+
+      setAssignedTasks(assignedTasks.filter(at => at.name !== task_title));
+      if(unassigned) setUnassignedTasks([...unassignedTasks, unassigned]);
+    }
+    catch (err) {
+      console.error(err);
+      alert("Failed to update members");
+    }
+    setLoading(false);
+  }
 
   if (loading) return <div>Loading...</div>;
 
@@ -203,102 +265,103 @@ export default function ProjectDetails() {
           </>
         )}
       </section>
+      
+      <DndContext onDragEnd={handleDragEnd}>
+        {/* MEMBERS */}
+        <section className="section-card">
+          <h2>Members</h2>
 
-      {/* MEMBERS */}
-      <section className="section-card">
-        <h2>Members</h2>
+          {members.length === 0 ? (
+            <p>No members</p>
+          ) : (
+            <div className="member-list">
+              {members.map((m) => (
+                // <div key={m.name} className="member-card">
+                //   {m.name}
+                // </div>
+                <UserDroppable key={m.name} member={m} tasks={m.tasks} onUnassign={handleUnassign}/>
+              ))}
+            </div>
+          )}
+        </section>
 
-        {members.length === 0 ? (
-          <p>No members</p>
-        ) : (
-          <div className="member-list">
-            {members.map((m) => (
-              <div key={m.name} className="member-card">
-                {m.name}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+        {/* TASKS */}
+        <section className="section-card">
+          <h2>Tasks</h2>
 
-      {/* TASKS */}
-      <section className="section-card">
-        <h2>Tasks</h2>
+          {unassignedTasks.length === 0 ? (
+            <p>No tasks yet</p>
+          ) : (
+            <div className="task-list">
+              {unassignedTasks.map((task) => {
+                const canDelete =
+                  currentUser &&
+                  (task.createdById === currentUser.id ||
+                    task.assignedUser === currentUser.id);
+                return (
+                  <div key={task.id} className="task-card-container">
+                    
+                    {/* task.name ?? task.title ?? "Unnamed Task" */}
+                    <TaskDraggable key={task.id} task={task} link_details={{ teamId: teamId, projectId: project.id, taskId: task.id }}/>
 
-        {tasks.length === 0 ? (
-          <p>No tasks yet</p>
-        ) : (
-          <div className="task-list">
-            {tasks.map((task) => {
-              const canDelete =
-                currentUser &&
-                (task.createdById === currentUser.id ||
-                  task.assignedUser === currentUser.id);
-              return (
-                <div key={task.id} className="task-card-container">
-                  <Link
-                    to={routes.task(Number(teamId), project.id, task.id)}
-                    className="task-card"
-                  >
-                    {task.name ?? task.title ?? "Unnamed Task"}
-                  </Link>
+                    {canDelete && (
+                      <button
+                        className="btn btn-danger btn-small delete-task-btn"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (
+                            confirm("Are you sure you want to delete this task?")
+                          ) {
+                            try {
+                              await deleteTask(task.id);
 
-                  {canDelete && (
-                    <button
-                      className="btn btn-danger btn-small delete-task-btn"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (
-                          confirm("Are you sure you want to delete this task?")
-                        ) {
-                          try {
-                            await deleteTask(task.id);
+                              const updatedTasks = await getTasksByProject(
+                                projectId,
+                                page,
+                                pageSize,
+                              );
 
-                            const updatedTasks = await getTasksByProject(
-                              projectId,
-                              page,
-                              pageSize,
-                            );
-
-                            setTasks(updatedTasks.content);
-                            setTotalPages(updatedTasks.totalPages);
-                          } catch (err) {
-                            console.error(err);
-                            alert("Failed to delete task");
+                              setUnassignedTasks(updatedTasks.content.filter(ut => ut.assignedUser == null));
+                              setAssignedTasks(updatedTasks.content.filter(ut => ut.assignedUser != null));
+                              setTotalPages(updatedTasks.totalPages);
+                            } catch (err) {
+                              console.error(err);
+                              alert("Failed to delete task");
+                            }
                           }
-                        }
-                      }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="pagination">
+            <button
+              className="btn"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {page + 1} of {totalPages}
+            </span>
+
+            <button
+              className="btn"
+              disabled={page + 1 >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </button>
           </div>
-        )}
-        <div className="pagination">
-          <button
-            className="btn"
-            disabled={page === 0}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </button>
-
-          <span>
-            Page {page + 1} of {totalPages}
-          </span>
-
-          <button
-            className="btn"
-            disabled={page + 1 >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
-      </section>
+        </section>
+      </DndContext>
       <section className="section-card">
         <h2>Create New Task</h2>
         <form

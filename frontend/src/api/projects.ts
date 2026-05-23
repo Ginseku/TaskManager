@@ -13,6 +13,7 @@ export type ProjectPayload = {
 export type ProjectMember = {
   name: string;
   role: "OWNER" | "ADMIN" | "MEMBER" | string;
+  tasks: String[];
 };
 
 export const getProjectsByTeam = async (teamId: number): Promise<Project[]> => {

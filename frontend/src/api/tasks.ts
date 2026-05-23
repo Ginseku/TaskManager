@@ -57,3 +57,11 @@ export const updateTask = async (projectId: number, taskId: number, task: Partia
 export const deleteTask = async (taskId: number) => {
   return api.delete(`/tasks/${taskId}`);
 };
+
+export const assignTask = async (taskId : number, username : string) => {
+  return api.put(`/tasks/${taskId}/${username}/assign`);
+}
+
+export const unassignTask = async (task_title : String) => {
+  return api.put(`/tasks/${task_title}/unassign`);
+}

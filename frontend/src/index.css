@@ -476,17 +476,24 @@ code {
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text-h);
+  display: flex;
+  flex-direction: row;
+  align-items: start;
 }
 
 .task-card {
   display: flex;
-  padding: 10px 12px;
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border);
+  font-size: 14px;
   background: var(--bg);
   color: var(--text-h);
   text-decoration: none;
   transition: 0.2s;
+  width: 40%;
 }
 
 .task-card:hover {
@@ -519,6 +526,9 @@ code {
 /* Task container */
 .task-card-container {
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Flex row for link + button */
@@ -541,7 +551,7 @@ code {
 .task-card {
   flex: 1;
   text-decoration: none;
-  color: #333;
+  color: #858585;
   font-weight: 500;
 }
 
@@ -560,3 +570,26 @@ code {
   transform: scale(1.05);
 }
 
+.highlight_dnd {
+  background-color: #313340;
+}
+
+.user-tasks {
+  font-size: 14px;
+  padding: 3px 6px;
+  background-color: var(--accent-bg);
+  color: var(--text);
+  border: none;
+  border-radius: 25px;
+  margin: 0 10px;
+}
+
+.user-tasks:hover {
+  font-size: 14px;
+  padding: 3px 6px;
+  background-color: red;
+  color: blue;
+  color: black;
+  border: none;
+  border-radius: 25px;
+}

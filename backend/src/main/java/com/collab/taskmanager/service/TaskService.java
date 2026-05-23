@@ -2,17 +2,20 @@ package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.request.CreateTaskRequest;
 import com.collab.taskmanager.dto.request.UpdateTaskRequest;
+import com.collab.taskmanager.dto.response.AssignTaskResponse;
+import com.collab.taskmanager.dto.response.UnassignTaskResponse;
 import com.collab.taskmanager.dto.response.GetAssignedUser;
 import com.collab.taskmanager.dto.response.GetTaskResponse;
 import com.collab.taskmanager.entities.*;
+import com.collab.taskmanager.enums.Role;
 import com.collab.taskmanager.enums.Status;
-import com.collab.taskmanager.exceptions.AccessDeniedException;
-import com.collab.taskmanager.exceptions.ProjectNotFoundException;
-import com.collab.taskmanager.exceptions.TaskNotFoundException;
-import com.collab.taskmanager.exceptions.UserIsNotTeamMemberException;
+import com.collab.taskmanager.exceptions.*;
 import com.collab.taskmanager.repos.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,10 +69,10 @@ public class TaskService {
                 task.getDescription(),
                 task.getStatus(),
                 task.getPriority(),
-                task.getAssignedUserId() != null
+                task.getAssignedUser() != null
                         ? new GetAssignedUser(
-                        task.getAssignedUserId().getId(),
-                        task.getAssignedUserId().getName()
+                        task.getAssignedUser().getId(),
+                        task.getAssignedUser().getName()
                 )
                         : null,
                 task.getDueDate(),
@@ -91,10 +94,10 @@ public class TaskService {
                         task.getDescription(),
                         task.getStatus(),
                         task.getPriority(),
-                        task.getAssignedUserId() != null
+                        task.getAssignedUser() != null
                                 ? new GetAssignedUser(
-                                task.getAssignedUserId().getId(),
-                                task.getAssignedUserId().getName()
+                                task.getAssignedUser().getId(),
+                                task.getAssignedUser().getName()
                         )
                                 : null,
                         task.getDueDate(),
@@ -153,5 +156,48 @@ public class TaskService {
     }
 
 
+    public ResponseEntity<AssignTaskResponse> assignTask(Long taskId, String username, UserPrincipal currentUser) {
+        try {
+            Task task = taskRepo.findById(taskId).orElseThrow(TaskNotFoundException::new);
+            TeamMember teamMember = teamMembersRepo.findByMemberName(username).orElseThrow(
+                    () -> new UserNotFoundException(username, true)
+            );
 
+            if(!canAssignOrUnassign(currentUser.getUser(), task))
+                throw new NotAllowedToAssignException("User " + currentUser.getUser().getName() + " is not allowed to assign this task");
+
+            task.setAssignedUser(teamMember.getMember());
+            taskRepo.save(task);
+
+            return ResponseEntity.ok().body(new AssignTaskResponse(taskId, username, true));
+        }
+        catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AssignTaskResponse(taskId, username, false));
+        }
+
+    }
+
+    public ResponseEntity<UnassignTaskResponse> unassignTask(String taskTitle, UserPrincipal currentUser) {
+        try {
+            Task task = taskRepo.findByTitle(taskTitle).orElseThrow(TaskNotFoundException::new);
+
+            if(!canAssignOrUnassign(currentUser.getUser(), task))
+                throw new NotAllowedToAssignException("User " + currentUser.getUser().getName() + " is not allowed to unassign this task");
+
+            task.setAssignedUser(null);
+            taskRepo.save(task);
+
+            return ResponseEntity.ok().body(new UnassignTaskResponse(taskTitle, true));
+        }
+        catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UnassignTaskResponse(taskTitle, false));
+        }
+    }
+
+    private boolean canAssignOrUnassign(User user, Task task) {
+        if(user.getRole() == Role.ADMIN) return true;
+        if(task.getCreatedBy().getId() == user.getId()) return true;
+
+        return false;
+    }
 }

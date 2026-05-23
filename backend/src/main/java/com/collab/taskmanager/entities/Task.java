@@ -28,7 +28,7 @@ public class Task {
     private LocalDate dueDate;
     @ManyToOne
     @JoinColumn(name = "assigned_user_id",nullable = true)
-    private User assignedUserId;
+    private User assignedUser;
     @ManyToOne
     @JoinColumn(name = "created_by_id")
     private User createdBy;

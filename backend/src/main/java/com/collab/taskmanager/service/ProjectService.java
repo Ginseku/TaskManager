@@ -7,13 +7,11 @@ import com.collab.taskmanager.dto.response.ProjectResponse;
 import com.collab.taskmanager.entities.*;
 import com.collab.taskmanager.enums.TeamRole;
 import com.collab.taskmanager.exceptions.*;
-import com.collab.taskmanager.repos.ProjectRepo;
-import com.collab.taskmanager.repos.TeamMembersRepo;
-import com.collab.taskmanager.repos.TeamRepo;
-import com.collab.taskmanager.repos.UserRepo;
+import com.collab.taskmanager.repos.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -24,12 +22,14 @@ public class ProjectService {
     private final UserRepo userRepo;
     private final TeamRepo teamRepo;
     private final TeamMembersRepo teamMembersRepo;
+    private final TaskRepo taskRepo;
 
-    public ProjectService(ProjectRepo projectRepo, UserRepo userRepo, TeamRepo teamRepo, TeamMembersRepo teamMembersRepo) {
+    public ProjectService(ProjectRepo projectRepo, UserRepo userRepo, TeamRepo teamRepo, TeamMembersRepo teamMembersRepo, TaskRepo taskRepo) {
         this.projectRepo = projectRepo;
         this.userRepo = userRepo;
         this.teamRepo = teamRepo;
         this.teamMembersRepo = teamMembersRepo;
+        this.taskRepo = taskRepo;
     }
 
     public void createProject(Long teamId, UserPrincipal userPrincipal, NameAndDescriptionRequest req) {
@@ -63,10 +63,17 @@ public class ProjectService {
         }
 
         List<TeamMember> members = teamMembersRepo.findByTeamId(team.getId());
+        HashMap<String, List<String>> userTasks = new HashMap<>();
+        for (TeamMember member : members) {
+            List<Task> tasks = taskRepo.findByAssignedUserId(member.getMember().getId());
+            List<String> tasksNames = tasks.stream().map(Task::getTitle).toList();
+            userTasks.put(member.getMember().getName(), tasksNames);
+        }
 
         return members.stream().map(member -> new GetProjectMembersNameResponse(
-                        member.getMember().getName(),
-                        member.getTeamRole()
+                    member.getMember().getName(),
+                    member.getTeamRole(),
+                    userTasks.get(member.getMember().getName())
                 ))
                 .toList();
 
