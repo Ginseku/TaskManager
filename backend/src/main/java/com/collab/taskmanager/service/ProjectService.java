@@ -65,7 +65,7 @@ public class ProjectService {
         List<TeamMember> members = teamMembersRepo.findByTeamId(team.getId());
         HashMap<String, List<String>> userTasks = new HashMap<>();
         for (TeamMember member : members) {
-            List<Task> tasks = taskRepo.findByAssignedUserId(member.getMember().getId());
+            List<Task> tasks = taskRepo.findByAssignedUser_IdAndProject_Id(member.getMember().getId(), projectId);
             List<String> tasksNames = tasks.stream().map(Task::getTitle).toList();
             userTasks.put(member.getMember().getName(), tasksNames);
         }

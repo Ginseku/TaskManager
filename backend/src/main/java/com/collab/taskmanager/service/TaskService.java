@@ -87,7 +87,7 @@ public class TaskService {
 
         taskPermissionService.validateTeamMember(project.getTeam().getId(),currentUser.getUser().getId());
 
-        return taskRepo.findAllByProjectId(projectId,pageable)
+        return taskRepo.findAllByProject_Id(projectId,pageable)
                 .map(task -> new GetTaskResponse(
                         task.getId(),
                         task.getTitle(),
