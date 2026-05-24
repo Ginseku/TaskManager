@@ -65,3 +65,8 @@ export const assignTask = async (taskId : number, username : string) => {
 export const unassignTask = async (task_title : String) => {
   return api.put(`/tasks/${task_title}/unassign`);
 }
+
+export const getMyTasks = async () => {
+  const res = await api.get<Task[]>("/tasks/me");
+  return res.data;
+};

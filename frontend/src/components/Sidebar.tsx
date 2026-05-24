@@ -56,11 +56,18 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
             Teams
           </NavLink>
 
-          {/* To be implemented */}
+          {/* Projects Todo */}
           <div className="sidebar-section">
             <p className="sidebar-section-title">Work</p>
 
-            <div className="sidebar-link disabled">My Tasks</div>
+            <NavLink
+              to={routes.myTasks()}
+              className={({ isActive }) =>
+                isActive ? "sidebar-link active" : "sidebar-link"
+              }
+            >
+              My Tasks
+            </NavLink>
             <div className="sidebar-link disabled">Projects</div>
           </div>
 

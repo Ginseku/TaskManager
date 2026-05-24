@@ -5,6 +5,7 @@ import { routes } from "../router/routes";
 import { useAuth } from "../context/AuthContext";
 import { getTeams } from "../api/teams";
 import { getProjectsByTeam } from "../api/projects";
+import { getDashboardStats } from "../api/users";
 
 import type { Team } from "../types/team";
 import type { Project } from "../types/project";
@@ -18,13 +19,25 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [stats, setStats] = useState({
+  teams: 0,
+  projects: 0,
+  assignedTasks: 0,
+  createdTasks: 0,
+});
+
   useEffect(() => {
     const loadDashboard = async () => {
       try {
+        setLoading(true);
         // Load teams first
-        const teamsData = await getTeams();
+        const [teamsData, statsData] = await Promise.all([
+        getTeams(),
+        getDashboardStats(),
+      ]);
 
         setTeams(teamsData);
+        setStats(statsData);
 
         // Load projects for every team
         const projectsPerTeam = await Promise.all(
@@ -82,21 +95,26 @@ export default function Dashboard() {
         }}
       >
         <div className="section-card">
-          <h2>{teams.length}</h2>
+          <h2>{stats.teams}</h2>
 
           <p style={{ opacity: 0.7 }}>Teams</p>
         </div>
 
         <div className="section-card">
-          <h2>{projects.length}</h2>
+          <h2>{stats.projects}</h2>
 
           <p style={{ opacity: 0.7 }}>Projects</p>
         </div>
 
         <div className="section-card">
-          <h2>0</h2>
+          <h2>{stats.assignedTasks}</h2>
 
-          <p style={{ opacity: 0.7 }}>Tasks</p>
+          <p style={{ opacity: 0.7 }}>Assigned Tasks</p>
+        </div>
+        <div className="section-card">
+          <h2>{stats.createdTasks}</h2>
+
+          <p style={{ opacity: 0.7 }}>Created Tasks</p>
         </div>
       </section>
 
