@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaskRepo extends JpaRepository<Task, Long> {
-    Page<Task> findAllByProjectId(Long projectId, Pageable pageable);
+    Page<Task> findAllByProject_Id(Long projectId, Pageable pageable);
+    List<Task> findByAssignedUser_IdAndProject_Id(Long userId, Long projectId);
     Optional<Task> findByProject_IdAndId(Long projectId, Long taskId);
-    List<Task> findByAssignedUserId(Long id);
+    //List<Task> findByAssignedUserId(Long id);
     Optional<Task> findByTitle(String taskTitle);
 }
