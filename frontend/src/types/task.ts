@@ -9,6 +9,7 @@ export type Task = {
     status: TaskStatus;
     priority: TaskPriority;
     projectId: number;
+    projectName?: string;
     assignedUser?: number;
     createdById: number;
     dueDate?: string;

@@ -195,14 +195,12 @@ public class TaskService {
         }
     }
 
-    public List<TaskResponse> getTasksAssignedToUser(String email) {
+    public Page<TaskResponse> getTasksAssignedToUser(String email, Pageable pageable) {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Task> tasks = taskRepo.findByAssignedUser_Id(user.getId());
+        Page<Task> tasks = taskRepo.findByAssignedUser_Id(user.getId(), pageable);
 
-        return tasks.stream()
-                .map(this::mapToResponse)
-                .toList();
+        return tasks.map(this::mapToResponse);
 
     }
 
@@ -217,6 +215,7 @@ public class TaskService {
                 task.getPriority() != null ? task.getPriority().name() : null,
                 task.getDueDate(),
                 task.getProject() != null ? task.getProject().getId() : null,
+                task.getProject() != null ? task.getProject().getName() : null,
                 task.getAssignedUser() != null ? task.getAssignedUser().getId() : null,
                 task.getAssignedUser() != null ? task.getAssignedUser().getName() : null
         );

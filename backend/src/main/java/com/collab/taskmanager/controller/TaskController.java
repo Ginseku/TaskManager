@@ -11,6 +11,7 @@ import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TaskService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -73,9 +74,15 @@ public class TaskController {
         taskService.updateTask(currentUser,projectId,taskId,request);
     }
 
-    @GetMapping("/me")
-    public List<TaskResponse> getUserTasks(Authentication auth) {
-        return taskService.getTasksAssignedToUser(auth.getName());
+    @GetMapping("/me/{page}/{size}")
+    public ResponseEntity<Page<TaskResponse>> getUserTasks(
+            Authentication auth,
+            @PathVariable int page,
+            @PathVariable int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return ResponseEntity.ok(taskService.getTasksAssignedToUser(auth.getName(), pageable));
     }
 
 }

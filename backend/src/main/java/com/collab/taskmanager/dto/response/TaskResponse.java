@@ -10,6 +10,7 @@ public record TaskResponse(
         String priority,
         LocalDate dueDate,
         Long projectId,
+        String projectName,
         Long assignedUserId,
         String assignedUserName
 ) {
