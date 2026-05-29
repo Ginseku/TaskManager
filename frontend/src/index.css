@@ -593,3 +593,202 @@ code {
   border: none;
   border-radius: 25px;
 }
+
+
+/* PROJECT CONTAINER */
+.project-group {
+  margin-bottom: 28px;
+}
+
+/* PROJECT HEADER */
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 18px;
+  margin-bottom: 14px;
+
+  border-radius: 14px;
+  border: 1px solid var(--border);
+
+  background: linear-gradient(
+    135deg,
+    var(--accent-bg),
+    rgba(255, 255, 255, 0.02)
+  );
+
+  box-shadow: var(--shadow);
+}
+
+.project-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.project-count {
+  font-size: 12px;
+  padding: 4px 10px;
+
+  border-radius: 999px;
+  border: 1px solid var(--accent-border);
+
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+/* TASK LIST */
+.project-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* TASK CARD */
+.task-panel {
+  padding: 16px;
+  border-radius: 14px;
+
+  border: 1px solid var(--border);
+  background: var(--bg);
+
+  box-shadow: var(--shadow);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  transition: 0.2s ease;
+}
+
+.task-panel:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-border);
+}
+
+/* TASK TITLE */
+.task-panel h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+/* DESCRIPTION */
+.task-panel p {
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ACTION ROW */
+.task-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 12px;
+  flex-wrap: wrap;
+
+  margin-top: 8px;
+}
+
+.status-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-btn {
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  border: 1px solid var(--border);
+  background: var(--bg);
+
+  font-size: 12px;
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.status-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.status-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  border: 1px solid var(--border);
+  background: var(--bg);
+
+  color: var(--text-h);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+  padding-right: 28px;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text) 50%),
+    linear-gradient(135deg, var(--text) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) 50%,
+    calc(100% - 10px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+select:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+input[type="date"] {
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  border: 1px solid var(--border);
+  background: var(--bg);
+
+  color: var(--text-h);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+input[type="date"]:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}

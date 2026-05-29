@@ -37,7 +37,10 @@ export const getTasksByProject = async (
   return res.data;
 };
 
-export const getTaskById = async (projectId: number, taskId: number): Promise<Task | null> => {
+export const getTaskById = async (
+  projectId: number,
+  taskId: number,
+): Promise<Task | null> => {
   if (USE_MOCK) {
     return mockTasks.find((t) => t.id === taskId) || null;
   }
@@ -50,7 +53,11 @@ export const createTask = async (projectId: number, task: Partial<Task>) => {
   return api.post(`/tasks/${projectId}`, task);
 };
 
-export const updateTask = async (projectId: number, taskId: number, task: Partial<Task>) => {
+export const updateTask = async (
+  projectId: number,
+  taskId: number,
+  task: Partial<Task>,
+) => {
   return api.put(`/tasks/${projectId}/${taskId}`, task);
 };
 
@@ -58,10 +65,19 @@ export const deleteTask = async (taskId: number) => {
   return api.delete(`/tasks/${taskId}`);
 };
 
-export const assignTask = async (taskId : number, username : string) => {
+export const assignTask = async (taskId: number, username: string) => {
   return api.put(`/tasks/${taskId}/${username}/assign`);
-}
+};
 
-export const unassignTask = async (task_title : String) => {
+export const unassignTask = async (task_title: String) => {
   return api.put(`/tasks/${task_title}/unassign`);
-}
+};
+
+export const getMyTasks = async (
+  page = 0,
+  size = 5,
+): Promise<PageResponse<Task>> => {
+  const res = await api.get<PageResponse<Task>>(`/tasks/me/${page}/${size}`);
+
+  return res.data;
+};

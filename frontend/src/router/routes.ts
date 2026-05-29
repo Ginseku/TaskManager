@@ -4,6 +4,7 @@ export const routes = {
   register: () => "/register",
   login: () => "/login",
   about: () => "/about",
+  myTasks: () => "/my-tasks",
 
   teams: () => "/teams",
   createTeam: () => "/teams/create",

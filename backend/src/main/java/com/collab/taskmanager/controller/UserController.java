@@ -1,9 +1,6 @@
 package com.collab.taskmanager.controller;
 
-import com.collab.taskmanager.dto.response.GetUsernameAndIdResponse;
-import com.collab.taskmanager.dto.response.Response;
-import com.collab.taskmanager.dto.response.GetMeResponse;
-import com.collab.taskmanager.dto.response.SearchResponse;
+import com.collab.taskmanager.dto.response.*;
 import com.collab.taskmanager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -88,6 +85,21 @@ public class UserController {
     @GetMapping("/search")
     public SearchResponse searchUserByUsername(@RequestParam String username){
         return userService.searchUserByUsername(username);
+    }
+
+    @Operation(
+            summary = "Get dashboard statistics",
+            description = "Returns dashboard statistics for the authenticated user including total teams, projects, and tasks"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dashboard statistics retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @GetMapping("/me/dashboard")
+    public DashboardStatsResponse getDashboard(
+            Authentication authentication
+    ) {
+        return userService.getDashboardStats(authentication.getName());
     }
 
 }

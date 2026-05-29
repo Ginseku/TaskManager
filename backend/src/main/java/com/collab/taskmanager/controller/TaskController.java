@@ -4,17 +4,22 @@ import com.collab.taskmanager.dto.request.CreateTaskRequest;
 import com.collab.taskmanager.dto.request.UpdateTaskRequest;
 import com.collab.taskmanager.dto.response.AssignTaskResponse;
 import com.collab.taskmanager.dto.response.GetTaskResponse;
+import com.collab.taskmanager.dto.response.TaskResponse;
 import com.collab.taskmanager.dto.response.UnassignTaskResponse;
+import com.collab.taskmanager.entities.Task;
 import com.collab.taskmanager.entities.UserPrincipal;
 import com.collab.taskmanager.service.TaskService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -69,9 +74,15 @@ public class TaskController {
         taskService.updateTask(currentUser,projectId,taskId,request);
     }
 
-    @GetMapping("/me")
-    public void getUserTasks() {
+    @GetMapping("/me/{page}/{size}")
+    public ResponseEntity<Page<TaskResponse>> getUserTasks(
+            Authentication auth,
+            @PathVariable int page,
+            @PathVariable int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
 
+        return ResponseEntity.ok(taskService.getTasksAssignedToUser(auth.getName(), pageable));
     }
 
 }

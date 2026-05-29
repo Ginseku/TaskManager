@@ -19,6 +19,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import AboutLayout from "../layouts/AboutLayout";
 import About from "../pages/About";
 import CreateTeam from "../pages/CreateTeam";
+import MyTasks from "../pages/MyTasks";
 
 export default function AppRouter() {
   return (
@@ -65,6 +66,7 @@ export default function AppRouter() {
                   path="/teams/:teamId/projects/:projectId/tasks/:taskId"
                   element={<TaskDetails />}
                 />
+                <Route path="/my-tasks" element={<MyTasks />} />
               </Route>
 
               <Route element={<AdminRoute />}>

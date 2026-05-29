@@ -2,10 +2,7 @@ package com.collab.taskmanager.service;
 
 import com.collab.taskmanager.dto.request.CreateTaskRequest;
 import com.collab.taskmanager.dto.request.UpdateTaskRequest;
-import com.collab.taskmanager.dto.response.AssignTaskResponse;
-import com.collab.taskmanager.dto.response.UnassignTaskResponse;
-import com.collab.taskmanager.dto.response.GetAssignedUser;
-import com.collab.taskmanager.dto.response.GetTaskResponse;
+import com.collab.taskmanager.dto.response.*;
 import com.collab.taskmanager.entities.*;
 import com.collab.taskmanager.enums.Role;
 import com.collab.taskmanager.enums.Status;
@@ -19,6 +16,8 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class TaskService {
@@ -27,12 +26,14 @@ public class TaskService {
     private final TeamMembersRepo teamMembersRepo;
     private final TaskRepo taskRepo;
     private final TaskPermissionService taskPermissionService;
+    private final UserRepo userRepo;
 
-    public TaskService(ProjectRepo projectRepo, TeamMembersRepo teamMembersRepo, TaskRepo taskRepo, TaskPermissionService taskPermissionService) {
+    public TaskService(ProjectRepo projectRepo, TeamMembersRepo teamMembersRepo, TaskRepo taskRepo, TaskPermissionService taskPermissionService, UserRepo userRepo) {
         this.projectRepo = projectRepo;
         this.teamMembersRepo = teamMembersRepo;
         this.taskRepo = taskRepo;
         this.taskPermissionService = taskPermissionService;
+        this.userRepo = userRepo;
     }
 
     public void createTask(UserPrincipal currentUser, Long projectId, CreateTaskRequest request) {
@@ -192,6 +193,32 @@ public class TaskService {
         catch(Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UnassignTaskResponse(taskTitle, false));
         }
+    }
+
+    public Page<TaskResponse> getTasksAssignedToUser(String email, Pageable pageable) {
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Page<Task> tasks = taskRepo.findByAssignedUser_Id(user.getId(), pageable);
+
+        return tasks.map(this::mapToResponse);
+
+    }
+
+    //Helpers
+
+    private TaskResponse mapToResponse(Task task) {
+        return new TaskResponse(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus() != null ? task.getStatus().name() : null,
+                task.getPriority() != null ? task.getPriority().name() : null,
+                task.getDueDate(),
+                task.getProject() != null ? task.getProject().getId() : null,
+                task.getProject() != null ? task.getProject().getName() : null,
+                task.getAssignedUser() != null ? task.getAssignedUser().getId() : null,
+                task.getAssignedUser() != null ? task.getAssignedUser().getName() : null
+        );
     }
 
     private boolean canAssignOrUnassign(User user, Task task) {

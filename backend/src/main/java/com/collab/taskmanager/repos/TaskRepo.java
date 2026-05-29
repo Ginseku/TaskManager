@@ -14,4 +14,8 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
     Optional<Task> findByProject_IdAndId(Long projectId, Long taskId);
     //List<Task> findByAssignedUserId(Long id);
     Optional<Task> findByTitle(String taskTitle);
+    long countByAssignedUser_Id(Long userId);
+    long countByCreatedBy_Id(Long userId);
+    //List<Task> findByAssignedUser_Id(Long userId);
+    Page<Task> findByAssignedUser_Id(Long userId, Pageable pageable);
 }
