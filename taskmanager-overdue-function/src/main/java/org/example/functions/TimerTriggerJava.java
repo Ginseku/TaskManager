@@ -13,7 +13,9 @@ public class TimerTriggerJava {
      */
     @FunctionName("TimerTriggerJava")
     public void run(
-        @TimerTrigger(name = "timerInfo", schedule = "0 * * * * *") String timerInfo,
+            //For testing schedule = "0 */1 * * * *" - every minute
+            //When all ok schedule = "0 0 0 * * *" - Once every day at 00:00
+        @TimerTrigger(name = "timerInfo", schedule = "0 */1 * * * *") String timerInfo,
         final ExecutionContext context
     ) {
         context.getLogger().info("Java Timer trigger function executed at: " + LocalDateTime.now());
