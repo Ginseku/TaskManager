@@ -35,5 +35,9 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+    //overdue column is for testing Azure timer trigger function
+    //nullable true so we dont crash existing w/o wipe table
+    @Column(nullable = true)
+    private boolean overdue = false;
 
 }
