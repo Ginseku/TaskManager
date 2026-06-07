@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "https://taskmanager-api.graycliff-1a6e4b04.westus2.azurecontainerapps.io",
   headers: {
     "Content-Type": "application/json",
   },
