@@ -79,7 +79,7 @@ public class SecurityConfig {
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
 
-    config.setAllowedOrigins(List.of("https://taskmanagerfrontend.z16.web.core.windows.net"));//FE
+    config.setAllowedOrigins(List.of("https://taskmanagerfrontend.z16.web.core.windows.net/"));//FE
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);
