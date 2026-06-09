@@ -34,7 +34,6 @@ class UserServiceTest {
     private TaskRepo taskRepo;
     @Mock
     private Mapper mapper;
-
     @Mock
     private Authentication authentication;
 
@@ -42,7 +41,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepo, teamRepo, projectRepo, taskRepo, mapper);
+        userService = new UserService(userRepo,teamRepo,projectRepo,taskRepo,mapper);
     }
 
     @Test

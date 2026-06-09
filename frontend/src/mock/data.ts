@@ -16,6 +16,7 @@ export const mockTeams: Team[] = [
     canManageMembers: true,
     description: "Brewing Code",
     createdBy: mockUser.id,
+    canManageMembers: true
   },
   {
     id: 2,
@@ -23,6 +24,7 @@ export const mockTeams: Team[] = [
     canManageMembers: false,
     description: "UI / UX stuff",
     createdBy: mockUser.id,
+    canManageMembers: true
   },
 ];
 
