@@ -13,14 +13,18 @@ export const mockTeams: Team[] = [
   {
     id: 1,
     name: "Dev Team",
+    canManageMembers: true,
     description: "Brewing Code",
     createdBy: mockUser.id,
+    canManageMembers: true
   },
   {
     id: 2,
     name: "Design Team",
+    canManageMembers: false,
     description: "UI / UX stuff",
     createdBy: mockUser.id,
+    canManageMembers: true
   },
 ];
 
@@ -48,7 +52,7 @@ export const mockTasks: Task[] = [
     status: "IN_PROGRESS",
     priority: "MEDIUM",
     projectId: 1,
-    createdBy: mockUser.id,
+    createdById: mockUser.id,
   },
   {
     id: 2,
@@ -56,6 +60,6 @@ export const mockTasks: Task[] = [
     status: "IN_PROGRESS",
     priority: "MEDIUM",
     projectId: 1,
-    createdBy: mockUser.id,
+    createdById: mockUser.id,
   },
 ];
