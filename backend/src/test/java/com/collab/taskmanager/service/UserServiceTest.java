@@ -6,6 +6,9 @@ import com.collab.taskmanager.dto.response.SearchResponse;
 import com.collab.taskmanager.entities.User;
 import com.collab.taskmanager.enums.Role;
 import com.collab.taskmanager.exceptions.UserNotFoundException;
+import com.collab.taskmanager.repos.ProjectRepo;
+import com.collab.taskmanager.repos.TaskRepo;
+import com.collab.taskmanager.repos.TeamRepo;
 import com.collab.taskmanager.repos.UserRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,10 +27,14 @@ class UserServiceTest {
 
     @Mock
     private UserRepo userRepo;
-
+    @Mock
+    private TeamRepo teamRepo;
+    @Mock
+    private ProjectRepo projectRepo;
+    @Mock
+    private TaskRepo taskRepo;
     @Mock
     private Mapper mapper;
-
     @Mock
     private Authentication authentication;
 
@@ -35,7 +42,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepo,mapper);
+        userService = new UserService(userRepo,teamRepo,projectRepo,taskRepo,mapper);
     }
 
     @Test
