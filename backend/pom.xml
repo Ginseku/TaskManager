@@ -111,6 +111,12 @@
 			<scope>test</scope>
 		</dependency>
 
+        <!-- MSSQL -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+
 	</dependencies>
 
 	<!-- ====================== -->
